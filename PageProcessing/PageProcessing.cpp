@@ -24,7 +24,20 @@ std::string PageProcessing::fetch_html(const std::string& url) {
     return result;
 }
 
+bool PageProcessing::is_internal_link(const std::string& url) {
+    // If the link is relative (starts with "/"), it's internal
+    if (url.substr(0, 6) == "/wiki/" && url.substr(0, 14) != "/wiki/category") {  // Check if the URL starts with "/wiki/"
+        return true;
+    }    
 
+    // // Check if the link is absolute and shares the same domain as the base URL
+    // std::string domain = extract_domain(url);
+    // if (!domain.empty() && domain == base_domain) {
+    //     return true;
+    // }
+
+    return false;
+}
 
 std::vector<std::string> PageProcessing::extract_links(const std::string& html) {
     std::vector<std::string> links;
@@ -33,7 +46,13 @@ std::vector<std::string> PageProcessing::extract_links(const std::string& html) 
 
     std::string::const_iterator search_start(html.cbegin());
     while (std::regex_search(search_start, html.cend(), match, href_pattern)) {
-        links.push_back(match[1]);
+        std::string link = match[1];
+        
+        // Filter out internal links based on the base domain
+        if (is_internal_link(link)) {
+            links.push_back(link);
+        }
+        
         search_start = match.suffix().first;
     }
 
