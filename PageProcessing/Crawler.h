@@ -7,10 +7,10 @@
 
 
 
-class PageProcessing {
+class Crawler {
     public:
 
-        PageProcessing(){};
+        Crawler(){};
 
 
         std::string fetch_html(const std::string& url);
