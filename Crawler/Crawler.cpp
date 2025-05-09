@@ -19,15 +19,9 @@ std::string Crawler::fetch_html(const std::string& url) {
     return result;
 }
 
-<<<<<<< HEAD
-bool Crawler::is_internal_link(const std::string& url) {
-    // If the link is relative (starts with "/"), it's internal
-    if (url.substr(0, 6) == "/wiki/" && url.substr(0, 14) != "/wiki/category") {  // Check if the URL starts with "/wiki/"
-=======
 bool Crawler::is_internal_link(const std::string& url, const std::string& base_domain) {
     // If the link is relative (starts with "/wiki/"), it's internal unless it starts with "/wiki/category"
     if (url.substr(0, 6) == "/wiki/" && url.substr(0, 14) != "/wiki/Category") {
->>>>>>> 38a2d1680e2c6c4242e73455a1591c28bfb38f14
         return true;
     }    
 

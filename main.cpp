@@ -37,8 +37,9 @@ int main() {
     
         std::vector<std::string> valid_links;
         for (int i = 0; i < links.size(); i++) {
-            if (processor.is_internal_link(links[i]) && !(visited.find(links[i]) != visited.end())) {
+            if (processor.is_internal_link(links[i], "wikipedia.org") && !(visited.find(links[i]) != visited.end())) {
                 to_visit.push(links[i]);
+                visited.emplace(links[i]);
             }
         }
         counter_visited++;
