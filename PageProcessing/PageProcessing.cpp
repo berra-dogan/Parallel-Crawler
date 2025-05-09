@@ -42,3 +42,8 @@ std::vector<std::string> PageProcessing::extract_links(const std::string& html) 
 
 
 
+std::vector<std::string> PageProcessing::visit(const std::string& url) {
+    std::string html_file = fetch_html(url);
+    std::vector<std::string> links = extract_links(html_file);
+    return links;
+};
