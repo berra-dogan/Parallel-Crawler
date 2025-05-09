@@ -19,6 +19,7 @@ std::string Crawler::fetch_html(const std::string& url) {
     return result;
 }
 
+
 bool Crawler::is_internal_link(const std::string& url, const std::string& base_domain) {
     // Check if the URL contains a colon
     if (url.find(":") != std::string::npos) {

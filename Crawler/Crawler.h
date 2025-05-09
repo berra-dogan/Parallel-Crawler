@@ -20,4 +20,6 @@ class Crawler {
         bool is_internal_link(const std::string& url, const std::string& base_domain);
 
         std::vector<std::string> visit(const std::string& url);
+
+        
 };
