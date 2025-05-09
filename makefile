@@ -1,22 +1,23 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -O2
+CXXFLAGS = -Wall -std=c++17
 
-# Output binary
-TARGET = extract_links_gumbo
-
-# Source files
-SRCS = extract_links_gumbo.cpp
-
-# Libraries
-LIBS = -lcurl -lgumbo
+# Files
+TARGET = main
+SRC = main.cpp PageProcessing/PageProcessing.cpp
+OBJ = $(SRC:.cpp=.o)
 
 # Default target
 all: $(TARGET)
 
-$(TARGET): $(SRCS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+# Link object files to create the final executable
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Clean build artifacts
+# Compile source files into object files
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean object files and the executable
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJ) $(TARGET)

@@ -5,7 +5,7 @@
 
 
 
-std::string fetch_html(const std::string& url) {
+std::string PageProcessing::fetch_html(const std::string& url) {
     std::string command = "curl -s \"" + url + "\"";
     std::string result;
     char buffer[128];
