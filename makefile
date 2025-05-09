@@ -1,15 +1,22 @@
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -Wall -O2
 
-CC = gcc
-CFLAGS = -Wall -Wextra -O2
-LIBS = -lcurl
+# Output binary
+TARGET = extract_links_gumbo
 
-TARGET = main
-SRC = main.cpp
+# Source files
+SRCS = extract_links_gumbo.cpp
 
+# Libraries
+LIBS = -lcurl -lgumbo
+
+# Default target
 all: $(TARGET)
 
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+$(TARGET): $(SRCS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
+# Clean build artifacts
 clean:
 	rm -f $(TARGET)
