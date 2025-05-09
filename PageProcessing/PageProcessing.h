@@ -12,11 +12,9 @@ class PageProcessing {
 
         PageProcessing(){};
 
-
         std::string fetch_html(const std::string& url);
 
         std::vector<std::string> extract_links(const std::string& html);
-
 
         std::vector<std::string> visit(const std::string& url);
 };
