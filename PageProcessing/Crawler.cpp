@@ -1,11 +1,11 @@
 
 
-#include "PageProcessing.h"
+#include "Crawler.h"
 
 
 
 
-std::string PageProcessing::fetch_html(const std::string& url) {
+std::string Crawler::fetch_html(const std::string& url) {
     std::string command = "curl -s \"" + url + "\"";
     std::string result;
     char buffer[128];
@@ -39,7 +39,7 @@ bool PageProcessing::is_internal_link(const std::string& url) {
     return false;
 }
 
-std::vector<std::string> PageProcessing::extract_links(const std::string& html) {
+std::vector<std::string> Crawler::extract_links(const std::string& html) {
     std::vector<std::string> links;
     std::regex href_pattern("<a\\s+[^>]*href=[\"']([^\"']+)[\"']", std::regex::icase);
     std::smatch match;
@@ -61,7 +61,7 @@ std::vector<std::string> PageProcessing::extract_links(const std::string& html) 
 
 
 
-std::vector<std::string> PageProcessing::visit(const std::string& url) {
+std::vector<std::string> Crawler::visit(const std::string& url) {
     std::string html_file = fetch_html(url);
     std::vector<std::string> links = extract_links(html_file);
     return links;

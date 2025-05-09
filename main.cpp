@@ -12,7 +12,9 @@ int main() {
     std::vector<std::string> links = processor.visit("https://en.wikipedia.org/wiki/Main_Page");
 
 
-    for (int i = 0; i < links.size(); i++) {
-        std::cout << links[i] << std::endl;
-    }
+    //for (int i = 0; i < links.size(); i++) {
+    //    std::cout << links[i] << std::endl;
+    //}
+    
+
 }
