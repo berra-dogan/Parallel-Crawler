@@ -4,7 +4,7 @@ CXXFLAGS = -Wall -std=c++17
 
 # Files
 TARGET = main
-SRC = main.cpp PageProcessing/PageProcessing.cpp
+SRC = main.cpp Crawler/Crawler.cpp
 OBJ = $(SRC:.cpp=.o)
 
 # Default target
