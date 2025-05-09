@@ -22,8 +22,12 @@ std::string Crawler::fetch_html(const std::string& url) {
 
 bool Crawler::is_internal_link(const std::string& url, const std::string& base_domain) {
     // Check if the URL contains a colon
-    if (url.find(":") != std::string::npos) {
-        return false;  // Return false if the URL contains a colon
+    if (url.find(":") != std::string::npos || 
+        url.find("?") != std::string::npos || 
+        url.find("#") != std::string::npos || 
+        url.find("&") != std::string::npos || 
+        url.find("@") != std::string::npos) {
+        return false;  // Return false if the URL contains any of these characters
     }
 
     if (url.substr(0, 1) == "/" && url.substr(0, 2) != "//") {
@@ -81,3 +85,36 @@ std::vector<std::string> Crawler::visit(const std::string& url) {
     std::vector<std::string> links = extract_links(html_file, base_domain);
     return links;
 };
+
+
+void Crawler::crawl(const std::string& visit_dir, int max_visit){
+    std::vector<std::string> links;
+
+    int counter_visited = 0;
+    to_visit.push(visit_dir);
+    visited.emplace(visit_dir);
+
+
+    while (to_visit.size() > 0) {
+        std::string current_link = base_url + to_visit.front();
+
+        std::cout << current_link << std::endl;
+        to_visit.pop();
+        links = visit(current_link);
+    
+        std::vector<std::string> valid_links;
+        for (int i = 0; i < links.size(); i++) {
+            if (is_internal_link(links[i], base_url) && !(visited.find(links[i]) != visited.end())) {
+                to_visit.push(links[i]);
+                visited.emplace(links[i]);
+            }
+        }
+        
+        counter_visited++;
+        if (counter_visited > max_visit){
+            break;
+        }
+    }
+    
+    std::cout << counter_visited << std::endl;
+}
