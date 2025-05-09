@@ -20,10 +20,14 @@ std::string Crawler::fetch_html(const std::string& url) {
 }
 
 bool Crawler::is_internal_link(const std::string& url, const std::string& base_domain) {
-    // If the link is relative (starts with "/wiki/"), it's internal unless it starts with "/wiki/category"
-    if (url.substr(0, 6) == "/wiki/" && url.substr(0, 14) != "/wiki/Category") {
+    // Check if the URL contains a colon
+    if (url.find(":") != std::string::npos) {
+        return false;  // Return false if the URL contains a colon
+    }
+
+    if (url.substr(0, 1) == "/" && url.substr(0, 2) != "//") {
         return true;
-    }    
+    }
 
     // Check if the link is absolute and shares the same domain as the base URL
     std::string domain = extract_domain(url);
