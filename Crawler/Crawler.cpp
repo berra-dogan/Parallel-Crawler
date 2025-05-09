@@ -24,7 +24,7 @@ std::string Crawler::fetch_html(const std::string& url) {
     return result;
 }
 
-bool PageProcessing::is_internal_link(const std::string& url) {
+bool Crawler::is_internal_link(const std::string& url) {
     // If the link is relative (starts with "/"), it's internal
     if (url.substr(0, 6) == "/wiki/" && url.substr(0, 14) != "/wiki/category") {  // Check if the URL starts with "/wiki/"
         return true;

@@ -19,4 +19,6 @@ class Crawler {
         bool is_internal_link(const std::string& url);
 
         std::vector<std::string> visit(const std::string& url);
+
+        
 };
