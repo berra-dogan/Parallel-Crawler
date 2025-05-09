@@ -2,6 +2,30 @@
 
 #include "PageProcessing.h"
 
+
+
+
+std::string fetch_html(const std::string& url) {
+    std::string command = "curl -s \"" + url + "\"";
+    std::string result;
+    char buffer[128];
+
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe) {
+        std::cerr << "Failed to run curl\n";
+        return "";
+    }
+
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        result += buffer;
+    }
+
+    pclose(pipe);
+    return result;
+}
+
+
+
 std::vector<std::string> PageProcessing::extract_links(const std::string& html) {
     std::vector<std::string> links;
     std::regex href_pattern("<a\\s+[^>]*href=[\"']([^\"']+)[\"']", std::regex::icase);
@@ -15,3 +39,6 @@ std::vector<std::string> PageProcessing::extract_links(const std::string& html) 
 
     return links;
 }
+
+
+
