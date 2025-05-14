@@ -4,8 +4,8 @@
 #include <queue>
 #include <set>
 
-#include "Crawler/Crawler.h"
-#include "PageInfo/PageInfo.h"
+#include "include/Crawler.hpp"
+#include "include/PageInfo.hpp"
 
 
 int main() {

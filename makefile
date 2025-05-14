@@ -4,7 +4,7 @@ CXXFLAGS = -Wall -std=c++17
 
 # Files
 TARGET = main
-SRC = main.cpp Crawler/Crawler.cpp
+SRC = src/Crawler.cpp src/HttpClient.cpp src/CrawlerUtils.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 
 # Default target
