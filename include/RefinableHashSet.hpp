@@ -1,5 +1,4 @@
-#ifndef HASH_SET
-#define HASH_SET
+#pragma once
 
 #include <vector>
 #include <list>
@@ -192,7 +191,3 @@ public:
     }
 
 };
-
-
-
-#endif
