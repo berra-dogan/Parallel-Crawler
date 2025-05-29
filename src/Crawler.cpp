@@ -28,7 +28,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
 
 void Crawler::crawl(const std::string& start_path) {
 
-    while (num_visited < max_visit) {
+    while (num_visited.load() < max_visit) {
         Page* visited_page = to_visit.pop();
 
         std::string current_url = base_url + visited_page->url;
@@ -38,8 +38,10 @@ void Crawler::crawl(const std::string& start_path) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr){
-                    neighbour_ptr = new Page(link, visited_page->distance_from_initial_page+1);
+                    neighbour_ptr = new Page(link, visited_page->depth+1);
                     to_visit.push(neighbour_ptr);
+                } else {
+                    neighbour_ptr->depth = std::min(neighbour_ptr->depth, visited_page->depth+1);
                 }
                 visited_page->neighbours.push_back(neighbour_ptr);
             }
