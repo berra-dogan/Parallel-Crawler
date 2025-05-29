@@ -42,7 +42,7 @@ private:
     std::atomic<OwnerInfo> owner;
 
 public:
-    RefinableHashSet(int capacity) {
+    RefinableHashSet(int capacity = 256) {
         table.resize(capacity);
         locks.resize(capacity);
         for (int i = 0; i < capacity; ++i) {

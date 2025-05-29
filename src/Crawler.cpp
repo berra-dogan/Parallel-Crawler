@@ -12,7 +12,7 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
     int counter = 0;
     Page* starting = new Page(start_path, 0);
     to_visit.push(starting);
-    visited.insert(start_path);
+    visited.add(starting);
 
     while (!to_visit.is_empty() && counter < max_visit) {
         Page* visited_page = to_visit.pop();
@@ -22,7 +22,7 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
-                Page* neighbour_ptr = visited.contains(link);
+                Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr){
                     neighbour_ptr = new Page(link, visited_page->distance_from_initial_page+1);
                     to_visit.push(neighbour_ptr);
