@@ -3,7 +3,7 @@
 
 void ShortestPathGame::multi_find(size_t num_threads){
     Page* starting = new Page(start_path, 0);
-    to_visit.push(starting);
+    to_fetch.push(starting);
     visited.add(starting);
 
     std::vector<std::thread> threads(num_threads);
@@ -25,7 +25,7 @@ void ShortestPathGame::find() {
     size_t visited_count = 0;
 
     while (visited_count < 50) {
-        Page* visited_page = to_visit.pop();
+        Page* visited_page = to_fetch.pop();
 
         // if (best_depth != std::numeric_limits<size_t>::max() && visited_page->depth >= best_depth) {
         //     continue;
@@ -52,10 +52,10 @@ void ShortestPathGame::find() {
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr) {
                     neighbour_ptr = new Page(link, visited_page->depth + 1);
-                    to_visit.push(neighbour_ptr);
+                    to_fetch.push(neighbour_ptr);
                 } else if (visited_page->depth + 1 < neighbour_ptr->depth) {
                     neighbour_ptr->depth = visited_page->depth + 1;
-                    to_visit.push(neighbour_ptr);
+                    to_fetch.push(neighbour_ptr);
                 }
 
                 visited_page->neighbours.push_back(neighbour_ptr);
