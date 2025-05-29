@@ -1,6 +1,8 @@
 #include "../include/Crawler.hpp"
 
-Crawler::Crawler(const std::string& base_url) : base_url(base_url) {}
+Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), max_visit(max_visit) {
+    num_visited = 0;
+}
 
 std::vector<std::string> Crawler::visit(const std::string& url) {
     std::string html = http.fetch(url);
@@ -8,7 +10,7 @@ std::vector<std::string> Crawler::visit(const std::string& url) {
     return CrawlerUtils::extract_links(html, base_domain);
 }
 
-void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int max_visit){
+void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
     Page* starting = new Page(start_path, 0);
     to_visit.push(starting);
     visited.add(starting);
@@ -16,7 +18,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int
     std::vector<std::thread> threads(num_threads);
 
     for (size_t i = 0; i < num_threads; ++i) {
-        threads[i] = std::thread(&Crawler::crawl, this, start_path, max_visit);
+        threads[i] = std::thread(&Crawler::crawl, this, start_path);
     }
 
     for (auto& th : threads) {
@@ -24,10 +26,9 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int
     }
 }
 
-void Crawler::crawl(const std::string& start_path, int max_visit) {
-    int counter = 0;
+void Crawler::crawl(const std::string& start_path) {
 
-    while (counter < max_visit) {
+    while (num_visited < max_visit) {
         Page* visited_page = to_visit.pop();
 
         std::string current_url = base_url + visited_page->url;
@@ -44,8 +45,8 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
             }
         }
 
-        ++counter;
+        num_visited.fetch_add(1);
     }
 
-    std::cout << "Total visited: " << counter << std::endl;
+    std::cout << "Total visited: " << num_visited << std::endl;
 }
