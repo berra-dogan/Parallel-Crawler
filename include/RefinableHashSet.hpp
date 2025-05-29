@@ -1,3 +1,6 @@
+#ifndef HASH_SET
+#define HASH_SET
+
 #include <vector>
 #include <list>
 #include <mutex>
@@ -14,11 +17,11 @@
 /*
     Following the implementation from the textbook The Art of Multiprocessor Programming by Maurice Herlihy and Nir Shavit
     Chapter 13
+    this takes and stores pointers to Pages
 */
-template <typename T, typename Hasher = std::hash<T>, typename Equal = std::equal_to<T>>
 class RefinableHashSet {
 private:
-    std::vector<std::list<T>> table;
+    std::vector<std::list<Page*>> table;
     std::vector<std::unique_ptr<std::mutex>> locks;
 
     // total number of items in the class
@@ -48,7 +51,7 @@ public:
         owner.store({std::thread::id(), false});
     }
 
-    void acquire(const T& x) {
+    void acquire(const std::string& x) {
         OwnerInfo who;
         std::thread::id me = std::this_thread::get_id();
         while (true) {
@@ -56,9 +59,9 @@ public:
                 who = owner.load();
             } while (who.mark && who.owner_id != me);
 
-            std::vector<std::unique_ptr<std::mutex>>& oldLocks = &locks;
+            std::vector<std::unique_ptr<std::mutex>>* oldLocks = &locks;
             // Using the Hasher function associated with the data
-            std::mutex* oldLock = (*oldLocks)[Hasher{}(x) % oldLocks->size()].get();
+            std::mutex* oldLock = (*oldLocks)[std::hash<std::string>{}(x) % oldLocks->size()].get();
             oldLock->lock();
 
             who = owner.load();
@@ -70,8 +73,8 @@ public:
         }
     }
 
-    void release(const T& x) {
-        locks[std::hash<T>{}(x) % locks.size()]->unlock();
+    void release(const std::string& x) {
+        locks[std::hash<std::string>{}(x) % locks.size()]->unlock();
     }
 
     void resize() {
@@ -87,13 +90,13 @@ public:
                 } 
                 quiesce();
 
-                std::vector<std::list<T>> oldTable = table;
-                table = std::vector<std::list<T>>(newCapacity);
+                std::vector<std::list<Page*>> oldTable = table;
+                table = std::vector<std::list<Page*>>(newCapacity);
 
                 // in the textbook initializefrom() but we do it as we initalize the lists
                 for (const auto& bucket : oldTable) {
                     for (const auto& item : bucket) {
-                        table[std::hash<T>{}(item) % table.size()].push_back(item);
+                        table[std::hash<std::string>{}(item->url) % table.size()].push_back(item);
                     }
                 }
                 // initialize the locks
@@ -117,18 +120,18 @@ public:
     }
 
 
-    bool add(const T& x) {
-        acquire(x);
-        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
-        for (const T& item : bucket) {
-            if (Equal{}(item, x)) {
-                release(x);
+    bool add(Page* x) {
+        acquire(x->url);
+        std::list<Page*>& bucket = table[std::hash<std::string>{}(x->url) % table.size()];
+        for (const Page* item : bucket) {
+            if (item->url == x->url) {
+                release(x->url);
                 return false;
             }
         }
         bucket.push_back(x);
         size.fetch_add(1);
-        release(x);
+        release(x->url);
 
         // resize whenever the load is bigger than 0.75
         // resize outside the lock to avoid deadlock
@@ -139,14 +142,14 @@ public:
         return true;
     }
 
-    bool remove(const T& x) {
+    bool remove(const std::string x) {
         acquire(x);
 
-        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
+        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
 
         // use the past Equal checker function to find
-        T it  = std::find_if(bucket.begin(), bucket.end(), [&](const T& item) {
-            return Equal{}(item, x);
+        auto it = std::find_if(bucket.begin(), bucket.end(), [&](const Page* item) {
+            return item->url == x;
         });
 
         if (it != bucket.end()) {
@@ -160,11 +163,11 @@ public:
     }
 
 
-    bool contains(const T& x) {
+    bool contains(const std::string x) {
         acquire(x);
-        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
-        for (const T& item : bucket) {
-            if (Equal(item, x)) {
+        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
+        for (const Page* item : bucket) {
+            if (item->url == x) {
                 release(x);
                 return true;
             }
@@ -173,17 +176,23 @@ public:
         return false;
     }
 
-    T get_obj(const T& x) {
+
+
+    Page* get_obj(const std::string x) {
         acquire(x);
-        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
-        for (const T& item : bucket) {
-            if (Equal(item, x)) {
+        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
+        for (Page* item : bucket) {
+            if (item->url == x) {
                 release(x);
                 return item;
             }
         }
         release(x);
-        return false;
+        return NULL;
     }
 
 };
+
+
+
+#endif
