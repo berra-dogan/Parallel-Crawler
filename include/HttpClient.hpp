@@ -1,3 +1,6 @@
+#ifndef HHHHHTTTPPP
+#define HHHHHTTTPPP
+
 #include <string>
 #include <iostream>
 
@@ -18,3 +21,5 @@ public:
      */
     std::string fetch(const std::string& url);
 };
+
+#endif

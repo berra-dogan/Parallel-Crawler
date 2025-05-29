@@ -1,3 +1,6 @@
+#ifndef CRAWWWLER_UNIT
+#define CRAWWWLER_UNIT
+
 #include <string>
 #include <vector>
 #include <regex>
@@ -44,3 +47,4 @@ namespace CrawlerUtils {
     std::vector<std::string> extract_links(const std::string& html, const std::string& base_domain);
 
 }
+#endif
