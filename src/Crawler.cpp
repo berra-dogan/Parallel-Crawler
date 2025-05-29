@@ -22,6 +22,18 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
+
+                Page a(link, 1);
+                if (set.contains(a)) {
+                    
+                } else {
+
+                }
+
+
+
+
+
                 if (visited.insert(link).second){
                     // PageInfo new_page 
                     to_visit.push(link);

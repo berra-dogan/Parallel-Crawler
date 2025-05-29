@@ -164,9 +164,22 @@ public:
         acquire(x);
         std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
         for (const T& item : bucket) {
-            if (item == x) {
+            if (Equal(item, x)) {
                 release(x);
                 return true;
+            }
+        }
+        release(x);
+        return false;
+    }
+
+    T get_obj(const T& x) {
+        acquire(x);
+        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
+        for (const T& item : bucket) {
+            if (Equal(item, x)) {
+                release(x);
+                return item;
             }
         }
         release(x);

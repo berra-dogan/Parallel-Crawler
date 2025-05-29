@@ -2,6 +2,7 @@
 #include "../include/CrawlerUtils.hpp"
 #include "../include/Page.hpp"
 #include "../include/SafeUnboundedQueue.hpp"
+#include "../include/RefinableHashSet.hpp"
 
 #include <string>
 #include <queue>
@@ -38,6 +39,9 @@ private:
     SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
     std::unordered_set<std::string> visited;   ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
+
+    RefinableHashSet<Page*, PageInfoPtrHash, PageInfoPtrEqual> set(16);
+
 
     /**
      * @brief Visits a single URL and extracts links from its content.
