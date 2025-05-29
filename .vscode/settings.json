@@ -75,6 +75,7 @@
         "locale": "cpp",
         "optional": "cpp",
         "queue": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "list": "cpp"
     }
 }
