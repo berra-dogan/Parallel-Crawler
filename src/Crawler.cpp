@@ -8,11 +8,24 @@ std::vector<std::string> Crawler::visit(const std::string& url) {
     return CrawlerUtils::extract_links(html, base_domain);
 }
 
-void Crawler::crawl(const std::string& start_path, int max_visit) {
-    int counter = 0;
+void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int max_visit){
     Page* starting = new Page(start_path, 0);
     to_visit.push(starting);
     visited.add(starting);
+
+    std::vector<std::thread> threads(num_threads);
+
+    for (size_t i = 0; i < num_threads; ++i) {
+        threads[i] = std::thread(&Crawler::crawl, this, start_path, max_visit);
+    }
+
+    for (auto& th : threads) {
+        th.join();
+    }
+}
+
+void Crawler::crawl(const std::string& start_path, int max_visit) {
+    int counter = 0;
 
     while (!to_visit.is_empty() && counter < max_visit) {
         Page* visited_page = to_visit.pop();

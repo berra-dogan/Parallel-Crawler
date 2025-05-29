@@ -36,6 +36,8 @@ public:
      */
     void crawl(const std::string& start_path, int max_visit = 1000);
 
+    void multi_crawl(const std::string& start_path, size_t num_threads, int max_visit= 1000);
+
 private:
     std::string base_url;                      ///< The root URL used to construct full URLs.
     SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
