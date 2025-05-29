@@ -1,5 +1,4 @@
-#ifndef CRAWWWWLER
-#define CRAWWWWLER
+#pragma once
 
 #include "HttpClient.hpp"
 #include "../include/CrawlerUtils.hpp"
@@ -54,6 +53,3 @@ private:
      */
     std::vector<std::string> visit(const std::string& url);
 };
-
-
-#endif
