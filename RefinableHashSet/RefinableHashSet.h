@@ -15,7 +15,7 @@
     Following the implementation from the textbook The Art of Multiprocessor Programming by Maurice Herlihy and Nir Shavit
     Chapter 13
 */
-template <typename T>
+template <typename T, typename Hasher = std::hash<T>, typename Equal = std::equal_to<T>>
 class RefinableHashSet {
 private:
     std::vector<std::list<T>> table;
@@ -57,7 +57,8 @@ public:
             } while (who.mark && who.owner_id != me);
 
             std::vector<std::unique_ptr<std::mutex>>& oldLocks = &locks;
-            std::mutex* oldLock = (*oldLocks)[std::hash<T>{}(x) % oldLocks->size()].get();
+            // Using the Hasher function associated with the data
+            std::mutex* oldLock = (*oldLocks)[Hasher{}(x) % oldLocks->size()].get();
             oldLock->lock();
 
             who = owner.load();
@@ -118,9 +119,9 @@ public:
 
     bool add(const T& x) {
         acquire(x);
-        auto& bucket = table[std::hash<T>{}(x) % table.size()];
+        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
         for (const T& item : bucket) {
-            if (item == x) {
+            if (Equal{}(item, x)) {
                 release(x);
                 return false;
             }
@@ -140,8 +141,14 @@ public:
 
     bool remove(const T& x) {
         acquire(x);
-        auto& bucket = table[std::hash<T>{}(x) % table.size()];
-        auto it = std::find(bucket.begin(), bucket.end(), x);
+
+        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
+
+        // use the past Equal checker function to find
+        T it  = std::find_if(bucket.begin(), bucket.end(), [&](const T& item) {
+            return Equal{}(item, x);
+        });
+
         if (it != bucket.end()) {
             bucket.erase(it);
             size.fetch_sub(1);
@@ -155,7 +162,7 @@ public:
 
     bool contains(const T& x) {
         acquire(x);
-        auto& bucket = table[std::hash<T>{}(x) % table.size()];
+        std::list<T>& bucket = table[std::hash<T>{}(x) % table.size()];
         for (const T& item : bucket) {
             if (item == x) {
                 release(x);
