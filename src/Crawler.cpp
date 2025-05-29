@@ -27,7 +27,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int
 void Crawler::crawl(const std::string& start_path, int max_visit) {
     int counter = 0;
 
-    while (!to_visit.is_empty() && counter < max_visit) {
+    while (counter < max_visit) {
         Page* visited_page = to_visit.pop();
 
         std::string current_url = base_url + visited_page->url;
