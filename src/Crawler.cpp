@@ -10,19 +10,24 @@ std::vector<std::string> Crawler::visit(const std::string& url) {
 
 void Crawler::crawl(const std::string& start_path, int max_visit) {
     int counter = 0;
-    to_visit.push(start_path);
+    Page* starting = new Page(start_path, 0);
+    to_visit.push(starting);
     visited.insert(start_path);
 
-    while (!to_visit.empty() && counter < max_visit) {
-        std::string relative_path = to_visit.front();
-        to_visit.pop();
+    while (!to_visit.is_empty() && counter < max_visit) {
+        Page* visited_page = to_visit.pop();
 
-        std::string current_url = base_url + relative_path;
+        std::string current_url = base_url + visited_page->url;
         std::cout << current_url << std::endl;
 
         for (const auto& link : visit(current_url)) {
-            if (CrawlerUtils::is_valid_link(link, base_url) && visited.insert(link).second) {
-                to_visit.push(link);
+            if (CrawlerUtils::is_valid_link(link, base_url)) {
+                if (visited.insert(link).second){
+                    // PageInfo new_page 
+                    to_visit.push(link);
+                } else {
+                    visited_page->neighbours.push_back()
+                }
             }
         }
 

@@ -1,5 +1,7 @@
 #include "HttpClient.hpp"
 #include "../include/CrawlerUtils.hpp"
+#include "../include/Page.hpp"
+#include "../include/SafeUnboundedQueue.hpp"
 
 #include <string>
 #include <queue>
@@ -33,7 +35,7 @@ public:
 
 private:
     std::string base_url;                      ///< The root URL used to construct full URLs.
-    std::queue<std::string> to_visit;          ///< Queue of URLs to be visited.
+    SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
     std::unordered_set<std::string> visited;   ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
 
