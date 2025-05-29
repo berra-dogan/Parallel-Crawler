@@ -22,7 +22,7 @@ public:
      * 
      * @param base_url The root URL to be used for relative link resolution.
      */
-    explicit Crawler(const std::string& base_url);
+    explicit Crawler(const std::string& base_url, size_t max_visit);
 
     void link_fetcher();
 
@@ -39,7 +39,7 @@ public:
      * @param start_path The initial path (relative to base_url) to start crawling from.
      * @param max_visit Maximum number of pages to visit. Defaults to 1000.
      */
-    void crawl(const std::string& start_path, int max_visit = 1000);
+    void crawl(const std::string& start_path);
 
 
     void multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process, int max_visit);
@@ -51,6 +51,8 @@ private:
     SafeUnboundedQueue to_process;
     RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
+    size_t max_visit; 
+    std::atomic<size_t> num_visited;
 
     int batch_fetch_size = 1;
 

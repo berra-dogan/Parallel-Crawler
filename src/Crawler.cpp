@@ -1,7 +1,9 @@
 #include "../include/Crawler.hpp"
 #include <curl/curl.h>
 
-Crawler::Crawler(const std::string& base_url) : base_url(base_url) {}
+Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), max_visit(max_visit) {
+    num_visited = 0;
+}
 
 
 
@@ -151,7 +153,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int
     std::vector<std::thread> threads(num_threads);
 
     for (size_t i = 0; i < num_threads; ++i) {
-        threads[i] = std::thread(&Crawler::crawl, this, start_path, max_visit);
+        threads[i] = std::thread(&Crawler::crawl, this, start_path);
     }
 
     for (auto& th : threads) {
@@ -163,7 +165,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads, int
 void Crawler::crawl(const std::string& start_path, int max_visit) {
     int counter = 0;
 
-    while (!to_visit.is_empty() && counter < max_visit) {
+    while (num_visited.load() < max_visit) {
         Page* visited_page = to_visit.pop();
 
         std::string current_url = base_url + visited_page->url;
@@ -173,14 +175,16 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr){
-                    neighbour_ptr = new Page(link, visited_page->distance_from_initial_page+1);
+                    neighbour_ptr = new Page(link, visited_page->depth+1);
                     to_visit.push(neighbour_ptr);
+                } else {
+                    neighbour_ptr->depth = std::min(neighbour_ptr->depth, visited_page->depth+1);
                 }
                 visited_page->neighbours.push_back(neighbour_ptr);
             }
         }
 
-        ++counter;
+        num_visited.fetch_add(1);
     }
 
     std::cout << "Total visited: " << counter << std::endl;

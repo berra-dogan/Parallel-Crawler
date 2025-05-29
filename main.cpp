@@ -6,7 +6,7 @@ int main(){
 
 
     std::string t = "https://en.wikipedia.org/wiki/France";
-    Crawler processor(base_url);
+    Crawler processor(base_url, 100);
     std::cout << "init\n";
     processor.multi_crawl(t, 2, 14, 100);
 }
