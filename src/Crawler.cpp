@@ -22,24 +22,12 @@ void Crawler::crawl(const std::string& start_path, int max_visit) {
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
-
-                Page a(link, 1);
-                if (set.contains(a)) {
-                    
-                } else {
-
+                Page* neighbour_ptr = visited.contains(link);
+                if (!neighbour_ptr){
+                    neighbour_ptr = new Page(link, visited_page->distance_from_initial_page+1);
+                    to_visit.push(neighbour_ptr);
                 }
-
-
-
-
-
-                if (visited.insert(link).second){
-                    // PageInfo new_page 
-                    to_visit.push(link);
-                } else {
-                    visited_page->neighbours.push_back()
-                }
+                visited_page->neighbours.push_back(neighbour_ptr);
             }
         }
 
