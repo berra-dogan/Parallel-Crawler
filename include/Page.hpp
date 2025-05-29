@@ -12,6 +12,9 @@ class Page {
         int distance_from_initial_page;
 
 
+        std::string page_content;
+
+
         bool operator==(const Page& other) const {
             return url == other.url;
         }

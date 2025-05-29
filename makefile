@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
+LDFLAGS = -lcurl -latomic
 
 # Files
 TARGET = main
@@ -12,7 +13,7 @@ all: $(TARGET)
 
 # Link object files to create the final executable
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Compile source files into object files (ensure build/ exists)
 build/%.o: %.cpp
