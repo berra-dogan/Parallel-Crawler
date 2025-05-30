@@ -20,6 +20,7 @@ class ShortestPathGame : public Crawler {
         
         void multi_find(size_t num_threads);
         void find(std::atomic<size_t>& active_threads);
+        void find_path_solutions();
     
     private:
         std::string start_path;            // Store as value
