@@ -12,19 +12,27 @@ void Crawler::link_fetcher() {
 
     while (true) {
         //std::cout << "link_fetcher\n" << std::endl;
-        std::vector<Page*> batch(batch_fetch_size);
+        std::vector<Page*> batch;
+        Page* current;
 
         for (int i = 0; i < batch_fetch_size; i++ ) {
-            batch[i] = to_fetch.pop();
+            current = to_fetch.pop_non_empty();
+            std::cout << current << std::endl;
+            if (current == NULL) {
+                break;
+            } else {
+                batch.push_back(current);
+            }
         }
         //std::cout << "link_fetcher\n" << std::endl;
-
+        
 
         //std::cout << batch.size() << std::endl;
         // CURL to Page in order to know which request is for which link
         std::unordered_map<CURL*, Page*> handle_to_page;
 
         for (auto& page : batch) {
+            std::cout << page << std::endl;
             // in case a page has been added to to_fetch even though it's already visited
             // Shouldn't be the case tho
 
