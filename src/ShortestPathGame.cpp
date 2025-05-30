@@ -17,30 +17,30 @@ void ShortestPathGame::multi_find(size_t num_threads){
     }
 }
 
-void ShortestPathGame::find() {
+void ShortestPathGame::find(std::atomic<size_t> active_threads){
     if (start_path == end_path) {
         throw std::invalid_argument("Start and end are the same");
     }
 
     size_t visited_count = 0;
 
-    while (visited_count < 50) {
+    while (visited_count < 1000) {
         Page* visited_page = to_fetch.pop();
 
-        // if (best_depth != std::numeric_limits<size_t>::max() && visited_page->depth >= best_depth) {
-        //     continue;
-        // }
+        if (best_depth != std::numeric_limits<size_t>::max() && visited_page->depth >= best_depth) {
+            ++visited_count;
+            continue;
+        }
 
         std::string current_url = base_url + visited_page->url;
         std::cout << current_url << std::endl;
 
         for (const auto& link : visit(current_url)) {
-            std::cout << link << "    " << best_depth;
             if (CrawlerUtils::is_valid_link(link, base_url)) {
-                //std::cout << link << "    " << best_depth;
+                std::cout << link << "    " << best_depth << "\n";
                 if (link == end_path) {
                     size_t candidate_depth = visited_page->depth + 1;
-                    assert(candidate_depth <= best_depth);
+                    //assert(candidate_depth <= best_depth);
                     if (candidate_depth < best_depth) {
                         best_depth = candidate_depth;
                         // store best path if you track it

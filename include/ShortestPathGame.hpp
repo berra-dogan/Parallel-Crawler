@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <atomic>
 #include "Crawler.hpp"
 #include "SafeUnboundedQueue.hpp"
 #include "RefinableHashSet.hpp"
@@ -19,7 +18,6 @@ class ShortestPathGame : public Crawler {
         void find();
     
     private:
-        std::string base_url;              // Store as value
         std::string start_path;            // Store as value
         std::string end_path;              // Store as value
     

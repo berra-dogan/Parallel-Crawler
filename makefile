@@ -1,7 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
-LDFLAGS = -lcurl -latomic
+LDFLAGS = -lcurl
 
 # Files
 TARGET = main
