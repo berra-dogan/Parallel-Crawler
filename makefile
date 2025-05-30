@@ -3,23 +3,34 @@ CXX = g++
 CXXFLAGS = -Wall -std=c++17
 LDFLAGS = -lcurl
 
-# Files
-TARGET = main
-SRC = main.cpp $(wildcard src/*.cpp)
-OBJ = $(patsubst %.cpp, build/%.o, $(SRC))
+# Source and build folders
+SRC_DIR = src
+BUILD_DIR = build
 
-# Default target
-all: $(TARGET)
+# Common source files
+COMMON_SRC = $(wildcard $(SRC_DIR)/*.cpp)
+COMMON_OBJ = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(COMMON_SRC))
 
-# Link object files to create the final executable
-$(TARGET): $(OBJ)
+# Targets
+TARGETS = main game
+
+# Default target: build both
+all: $(TARGETS)
+
+# Rules for each target
+main: main.cpp $(COMMON_OBJ)
+	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Compile source files into object files (ensure build/ exists)
-build/%.o: %.cpp
+game: game.cpp $(COMMON_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Compile all object files under src/
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean object files and the executable
+# Clean
 clean:
-	rm -rf build $(TARGET)
+	rm -rf $(BUILD_DIR) $(TARGETS)

@@ -2,14 +2,16 @@
 #include <cassert>
 
 void ShortestPathGame::multi_find(size_t num_threads){
+
     Page* starting = new Page(start_path, 0);
     to_fetch.push(starting);
     visited.add(starting);
 
     std::vector<std::thread> threads(num_threads);
+    std::atomic<size_t> active_threads{num_threads};
 
     for (size_t i = 0; i < num_threads; ++i) {
-        threads[i] = std::thread(&ShortestPathGame::find, this);
+        threads[i] = std::thread(&ShortestPathGame::find, this, std::ref(active_threads));
     }
 
     for (auto& th : threads) {
@@ -17,18 +19,28 @@ void ShortestPathGame::multi_find(size_t num_threads){
     }
 }
 
-void ShortestPathGame::find(std::atomic<size_t> active_threads){
-    if (start_path == end_path) {
-        throw std::invalid_argument("Start and end are the same");
-    }
+void ShortestPathGame::find(std::atomic<size_t>& active_threads){
 
-    size_t visited_count = 0;
-
-    while (visited_count < 1000) {
-        Page* visited_page = to_fetch.pop();
+    while (true) {
+        Page* visited_page = to_fetch.pop_no_busy_waiting();
+        
+        if (visited_page==nullptr){
+            active_threads.fetch_sub(1);
+            if (active_threads==0){
+                std::cout << "Best depth: " << best_depth << std::endl;
+                to_fetch.not_empty.notify_all();
+                return;
+            };
+            std::unique_lock<std::mutex> lk(to_fetch.lock);
+            while (to_fetch.elements.empty()) {
+                if (active_threads==0) return;
+                to_fetch.not_empty.wait(lk);
+            }
+            active_threads.fetch_add(1);  
+            continue;
+        }  
 
         if (best_depth != std::numeric_limits<size_t>::max() && visited_page->depth >= best_depth) {
-            ++visited_count;
             continue;
         }
 
@@ -61,11 +73,7 @@ void ShortestPathGame::find(std::atomic<size_t> active_threads){
                 visited_page->neighbours.push_back(neighbour_ptr);
             }
         }
-
-        visited_count++;
     }
-
-    std::cout << "Best depth: " << best_depth << std::endl;
 }
 
 

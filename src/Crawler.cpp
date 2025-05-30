@@ -16,7 +16,7 @@ void Crawler::link_fetcher() {
         Page* current;
 
         for (int i = 0; i < batch_fetch_size; i++ ) {
-            current = to_fetch.pop_non_empty();
+            current = to_fetch.pop_no_busy_waiting();
             std::cout << current << std::endl;
             if (current == NULL) {
                 break;

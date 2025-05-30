@@ -12,10 +12,14 @@ class ShortestPathGame : public Crawler {
         explicit ShortestPathGame(const std::string& base_url,
                                  const std::string& start_path,
                                  const std::string& end_path)
-            : Crawler(base_url, 0), start_path(start_path), end_path(end_path) {}
+            : Crawler(base_url, 0), start_path(start_path), end_path(end_path) {
+                if (start_path == end_path) {
+                    throw std::invalid_argument("Start and end are the same");
+                }
+            }
         
         void multi_find(size_t num_threads);
-        void find();
+        void find(std::atomic<size_t>& active_threads);
     
     private:
         std::string start_path;            // Store as value
