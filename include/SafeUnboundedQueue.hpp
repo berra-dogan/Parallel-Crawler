@@ -42,6 +42,8 @@ public:
      */
     Page* pop();
 
+    Page* pop_non_empty();
+
     /**
      * @brief Checks whether the queue is currently empty.
      *

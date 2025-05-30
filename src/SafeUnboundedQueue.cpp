@@ -25,6 +25,20 @@ Page* SafeUnboundedQueue::pop() {
 
     return popped_elt;
 }
+Page* SafeUnboundedQueue::pop_non_empty() {
+    std::unique_lock<std::mutex> lk(lock);
+
+    if (elements.empty()) {
+        return NULL;
+    }
+
+    Page* popped_elt = elements.front();
+    elements.pop();
+
+    return popped_elt;
+}
+
+
 
 bool SafeUnboundedQueue::is_empty() const {
     std::lock_guard<std::mutex> lk(lock);
