@@ -109,7 +109,7 @@ void Crawler::link_processor() {
             } 
             // add any new links to page and to to_fetch
             // Like this only one link should ever be added to to_fetch I think
-            Page* new_page = new Page(l, page->distance_from_initial_page + 1);
+            Page* new_page = new Page(l, page->depth + 1);
             visited.add(new_page);
             to_fetch.push(new_page);
         }

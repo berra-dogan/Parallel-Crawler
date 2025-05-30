@@ -45,14 +45,12 @@ public:
     void multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process, int max_visit);
     //void multi_crawl(const std::string& start_path, size_t num_threads, int max_visit= 1000);
 
-private:
+protected:
     std::string base_url;                      ///< The root URL used to construct full URLs.
     SafeUnboundedQueue to_fetch;               ///< Queue of URLs to be visited.
     SafeUnboundedQueue to_process;
     RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
-    size_t max_visit; 
-    std::atomic<size_t> num_visited;
 
     int batch_fetch_size = 1;
 
@@ -67,4 +65,8 @@ private:
      * @return A vector of discovered links on the page.
      */
     std::vector<std::string> visit(const std::string& url);
+
+private:
+    size_t max_visit; 
+    std::atomic<size_t> num_visited;
 };

@@ -5,11 +5,11 @@
 
 class Page {
     public:
-        Page(std::string url, int distance_from_initial_page): url(url), distance_from_initial_page(distance_from_initial_page), neighbours({}) {}
+        Page(std::string url, int depth): url(url), depth(depth), neighbours({}) {}
 
         const std::string url;
+        int depth;
         std::vector<Page*> neighbours;
-        int distance_from_initial_page;
 
 
         std::string page_content;
