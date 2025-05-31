@@ -14,14 +14,11 @@
  * and condition variable to allow concurrent push and pop operations.
  */
 class SafeUnboundedQueue {
-private:
+public:
     std::queue<Page*> elements;            ///< Internal queue storing pointers to Page objects
     mutable std::mutex lock;               ///< Mutex to protect access to the queue
     std::condition_variable not_empty;     ///< Condition variable for blocking pops when queue is empty
 
-    
-
-public:
     /**
      * @brief Default constructor for SafeUnboundedQueue.
      */
@@ -45,7 +42,7 @@ public:
      */
     Page* pop();
 
-    Page* pop_non_empty();
+    Page* pop_no_busy_waiting();
 
     /**
      * @brief Checks whether the queue is currently empty.

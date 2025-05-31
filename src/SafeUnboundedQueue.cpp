@@ -28,11 +28,12 @@ Page* SafeUnboundedQueue::pop() {
 
     return popped_elt;
 }
-Page* SafeUnboundedQueue::pop_non_empty() {
+
+Page* SafeUnboundedQueue::pop_no_busy_waiting() {
     std::unique_lock<std::mutex> lk(lock);
 
     if (elements.empty()) {
-        return NULL;
+        return nullptr;
     }
 
     Page* popped_elt = elements.front();

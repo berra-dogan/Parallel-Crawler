@@ -26,11 +26,6 @@ public:
 
     explicit Crawler(const std::string& base_url, size_t max_visit) ;
 
-    void link_fetcher();
-
-
-    void link_processor();
-
     /**
      * @brief Starts crawling from the given start path.
      * 
@@ -44,13 +39,12 @@ public:
     void crawl(const std::string& start_path);
 
 
-    void multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process, int max_visit);
-    //void multi_crawl(const std::string& start_path, size_t num_threads, int max_visit= 1000);
+    void multi_crawl(const std::string& start_path, size_t num_threads);
+    std::unordered_map<std::string, std::unordered_set<std::string>> graph;
 
 protected:
     std::string base_url;                      ///< The root URL used to construct full URLs.
-    SafeUnboundedQueue to_fetch;               ///< Queue of URLs to be visited.
-    SafeUnboundedQueue to_process;
+    SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
     RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
 

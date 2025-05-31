@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 class Page {
     public:
@@ -9,7 +10,8 @@ class Page {
 
         const std::string url;
         int depth;
-        std::vector<Page*> neighbours;
+        std::unordered_set<Page*> neighbours;
+        std::unordered_set<Page*> prev_pages;
 
 
         std::string page_content;
