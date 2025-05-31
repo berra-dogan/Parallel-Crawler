@@ -26,18 +26,30 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
     for (auto& th : threads) {
         th.join();
     }
+
+    std::cout << "Total visited: " << num_visited << std::endl;
 }
 
 void Crawler::crawl(const std::string& start_path) {
-    while (num_visited < max_visit) {
+    while (num_visited.load() < max_visit) {
+
         Page* visited_page = to_visit.pop();
+
+        for (Page* prev: visited_page->prev_pages){
+            graph[prev->url].insert(visited_page->url);
+        }
+
+        // Atomically increment after popping to avoid going beyond max_visit
+        if (num_visited.fetch_add(1) >= max_visit) {
+            break;
+        }
 
         std::string current_url = base_url + visited_page->url;
         std::cout << current_url << std::endl;
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
-                //graph[visited_page->url].insert(link);
+
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr) {
                     neighbour_ptr = new Page(link, visited_page->depth + 1);
@@ -47,11 +59,9 @@ void Crawler::crawl(const std::string& start_path) {
                     neighbour_ptr->depth = visited_page->depth + 1;
                     to_visit.push(neighbour_ptr);
                 }
-                //visited_page->neighbours.push_back(neighbour_ptr);
+                neighbour_ptr->prev_pages.insert(visited_page);
+
             }
         }
-
-        num_visited.fetch_add(1);
     }
-    std::cout << "Total visited: " << num_visited << std::endl;
 }

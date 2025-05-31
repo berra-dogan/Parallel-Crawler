@@ -6,24 +6,25 @@
 int main(){
     std::string base_url = "https://en.wikipedia.org";
     std::string t = "https://en.wikipedia.org/wiki/France";
+    std::string start_path = "/wiki/France";
 
-    // Crawler processor(base_url, 50);
-    // processor.multi_crawl(t, 16);
+    Crawler processor(base_url, 50);
+    processor.multi_crawl(start_path, 16);
 
-    Crawler2 processor2(base_url, 50);
-    processor2.multi_crawl(t, 2, 14);  // (start URL, depth, threads, max pages)
+    // Crawler2 processor2(base_url, 50);
+    // processor2.multi_crawl(t, 2, 14);  // (start URL, depth, threads, max pages)
 
-    // // Export graph
-    // std::ofstream out("web_graph.dot");
-    // out << "digraph Web {\n";
+    // Export graph
+    std::ofstream out("web_graph.dot");
+    out << "digraph Web {\n";
 
-    // const auto& graph = processor.graph;
-    // for (const auto& [from, links] : graph) {
-    //     for (const auto& to : links) {
-    //         out << "    \"" << from << "\" -> \"" << to << "\";\n";
-    //     }
-    // }
+    const auto& graph = processor.graph;
+    for (const auto& [from, links] : graph) {
+        for (const auto& to : links) {
+            out << "    \"" << from << "\" -> \"" << to << "\";\n";
+        }
+    }
 
-    // out << "}\n";
-    // std::cout << "Graph written to web_graph.dot\n";
+    out << "}\n";
+    std::cout << "Graph written to web_graph.dot\n";
 }
