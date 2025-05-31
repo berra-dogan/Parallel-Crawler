@@ -83,7 +83,7 @@ public:
         int newCapacity = 2 * oldCapacity;
         if (owner.compare_exchange_strong(expected, {me, true})) {
             try {
-                if (table.size() != oldCapacity){
+                if (int(table.size()) != oldCapacity){
                     // already has been resized
                     return;
                 } 

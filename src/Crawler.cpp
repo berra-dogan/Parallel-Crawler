@@ -1,11 +1,11 @@
 #include "../include/Crawler.hpp"
 #include <curl/curl.h>
 
-Crawler::Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size) : base_url(base_url), max_visit(max_visit), batch_fetch_size(batch_fetch_size) {
+Crawler::Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size) : base_url(base_url), batch_fetch_size(batch_fetch_size), max_visit(max_visit) {
     num_visited = 0;
 }
 
-Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), max_visit(max_visit), batch_fetch_size(10) {
+Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), batch_fetch_size(10), max_visit(max_visit){
     num_visited = 0;
 }
 
