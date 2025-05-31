@@ -2,17 +2,17 @@
 
 #include <string>
 #include <vector>
-#include "Crawler.hpp"
+#include "Crawler2.hpp"
 #include "SafeUnboundedQueue.hpp"
 #include "RefinableHashSet.hpp"
 #include "HttpClient.hpp"
 
-class ShortestPathGame : public Crawler {
+class ShortestPathGame : public Crawler2 {
     public:
         explicit ShortestPathGame(const std::string& base_url,
                                  const std::string& start_path,
                                  const std::string& end_path)
-            : Crawler(base_url, 0), start_path(start_path), end_path(end_path) {
+            : Crawler2(base_url, 0), start_path(start_path), end_path(end_path) {
                 if (start_path == end_path) {
                     throw std::invalid_argument("Start and end are the same");
                 }
