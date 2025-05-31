@@ -10,14 +10,14 @@ Crawler2::Crawler2(const std::string& base_url, size_t max_visit) : base_url(bas
 void Crawler2::link_fetcher() {
     CURLM* multi = curl_multi_init();
 
-    while (true) {
+    std::cout << max_visit << std::endl;
+    while (num_visited < max_visit) {
         //std::cout << "link_fetcher\n" << std::endl;
         std::vector<Page*> batch;
         Page* current;
 
         for (int i = 0; i < batch_fetch_size; i++ ) {
             current = to_fetch.pop_no_busy_waiting();
-            std::cout << current << std::endl;
             if (current == NULL) {
                 break;
             } else {
@@ -32,7 +32,7 @@ void Crawler2::link_fetcher() {
         std::unordered_map<CURL*, Page*> handle_to_page;
 
         for (auto& page : batch) {
-            std::cout << page << std::endl;
+            //std::cout << page << std::endl;
             // in case a page has been added to to_fetch even though it's already visited
             // Shouldn't be the case tho
 
@@ -86,7 +86,7 @@ void Crawler2::link_fetcher() {
 
 
 void Crawler2::link_processor() {
-    while (true) {
+    while (num_visited < max_visit) {
         //std::cout << "hey\n";
         Page* page = to_process.pop();
 
@@ -94,8 +94,10 @@ void Crawler2::link_processor() {
         std::string base_domain = CrawlerUtils::extract_domain(page->url);
         std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_domain);
 
+        num_visited.fetch_add(1);
+        //std::cout << num_visited <<std::endl;
 
-        std::cout << page->url << std::endl;
+        //std::cout << page->url << std::endl;
 
         // we don't need to store all the html after having proceessed the link so we remove it 
         // this saves memory and is needed with the amount of pages visited
@@ -114,6 +116,7 @@ void Crawler2::link_processor() {
             Page* new_page = new Page(l, page->depth + 1);
             visited.add(new_page);
             to_fetch.push(new_page);
+
         }
     }
 }

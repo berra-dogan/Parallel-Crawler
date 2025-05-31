@@ -51,7 +51,7 @@ void Crawler::crawl(const std::string& start_path) {
         }
 
         std::string current_url = base_url + visited_page->url;
-        std::cout << current_url << std::endl;
+        //std::cout << current_url << std::endl;
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
