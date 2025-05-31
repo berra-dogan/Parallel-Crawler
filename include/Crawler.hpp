@@ -22,7 +22,9 @@ public:
      * 
      * @param base_url The root URL to be used for relative link resolution.
      */
-    explicit Crawler(const std::string& base_url, size_t max_visit);
+    explicit Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size);
+
+    explicit Crawler(const std::string& base_url, size_t max_visit) ;
 
     void link_fetcher();
 
@@ -52,7 +54,7 @@ protected:
     RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
 
-    int batch_fetch_size = 1;
+    int batch_fetch_size;
 
 
     /**

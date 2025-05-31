@@ -3,6 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+#include <atomic>
 #include "Page.hpp"
 
 /**
@@ -17,6 +18,8 @@ private:
     std::queue<Page*> elements;            ///< Internal queue storing pointers to Page objects
     mutable std::mutex lock;               ///< Mutex to protect access to the queue
     std::condition_variable not_empty;     ///< Condition variable for blocking pops when queue is empty
+
+    
 
 public:
     /**
@@ -50,5 +53,9 @@ public:
      * @return true if the queue is empty, false otherwise.
      */
     bool is_empty() const;
+
+
+
+    //std::atomic<int> n_elements;
 };
 

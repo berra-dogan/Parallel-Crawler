@@ -1,7 +1,11 @@
 #include "../include/Crawler.hpp"
 #include <curl/curl.h>
 
-Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), max_visit(max_visit) {
+Crawler::Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size) : base_url(base_url), max_visit(max_visit), batch_fetch_size(batch_fetch_size) {
+    num_visited = 0;
+}
+
+Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), max_visit(max_visit), batch_fetch_size(10) {
     num_visited = 0;
 }
 
@@ -10,29 +14,34 @@ Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_
 void Crawler::link_fetcher() {
     CURLM* multi = curl_multi_init();
 
-    while (true) {
+    while (num_visited < max_visit) {
         //std::cout << "link_fetcher\n" << std::endl;
         std::vector<Page*> batch;
         Page* current;
 
+
+        //std::cout << "FDFD" << std::endl;
+
+
+        //std::cout << to_fetch.n_elements << std::endl;
+
         for (int i = 0; i < batch_fetch_size; i++ ) {
             current = to_fetch.pop_non_empty();
-            std::cout << current << std::endl;
             if (current == NULL) {
                 break;
             } else {
                 batch.push_back(current);
             }
         }
-        //std::cout << "link_fetcher\n" << std::endl;
+        //std::cout << batch.size() << std::endl;
         
-
+        num_visited.fetch_add(batch.size());
         //std::cout << batch.size() << std::endl;
         // CURL to Page in order to know which request is for which link
         std::unordered_map<CURL*, Page*> handle_to_page;
 
         for (auto& page : batch) {
-            std::cout << page << std::endl;
+            //std::cout << page << std::endl;
             // in case a page has been added to to_fetch even though it's already visited
             // Shouldn't be the case tho
 
@@ -86,7 +95,7 @@ void Crawler::link_fetcher() {
 
 
 void Crawler::link_processor() {
-    while (true) {
+    while (num_visited < max_visit) {
         //std::cout << "hey\n";
         Page* page = to_process.pop();
 

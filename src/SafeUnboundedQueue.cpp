@@ -8,6 +8,7 @@ void SafeUnboundedQueue::push(const Page* element) {
     bool wasEmpty = elements.empty();
     elements.push(const_cast<Page*>(element));  // Cast away constness if needed
 
+    //n_elements.fetch_add(1);
     if (wasEmpty) {
         not_empty.notify_all();
     }
@@ -22,6 +23,8 @@ Page* SafeUnboundedQueue::pop() {
 
     Page* popped_elt = elements.front();
     elements.pop();
+
+    //n_elements.fetch_sub(1);
 
     return popped_elt;
 }
