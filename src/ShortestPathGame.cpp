@@ -109,7 +109,6 @@ void ShortestPathGame::find(std::atomic<size_t>& active_threads){
                     to_fetch.push(neighbour_ptr);
                 }
                 neighbour_ptr->prev_pages.insert(visited_page);
-                visited_page->neighbours.insert(neighbour_ptr);
 
                 if (link == end_path) {
                     size_t candidate_depth = visited_page->depth + 1;

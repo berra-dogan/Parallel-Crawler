@@ -1,1 +1,3 @@
 a
+brew install graphviz
+dot -Tpng web_graph.dot -o web_graph.png
