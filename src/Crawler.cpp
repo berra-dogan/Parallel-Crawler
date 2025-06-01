@@ -65,7 +65,8 @@ void Crawler::crawl(const std::string& start_path) {
                     neighbour_ptr->depth = visited_page->depth + 1;
                     to_visit.push(neighbour_ptr);
                 }
-                neighbour_ptr->prev_pages.insert(visited_page);
+                visited_page->neighbours.insert(neighbour_ptr);
+                graph[visited_page->url].insert(neighbour_ptr->url);
 
             }
         }
