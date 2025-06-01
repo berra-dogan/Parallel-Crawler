@@ -1,8 +1,5 @@
 # Gitignore created by chatgpt
 
-
-makefile
-
 # Build files
 *.o
 *.obj
@@ -20,6 +17,8 @@ makefile
 *.i
 *.ii
 *.gch
+*.png
+*.svg
 
 # Build system folders
 /build/
@@ -74,3 +73,5 @@ Thumbs.db
 .idea/
 *.swp
 *~
+web_graph.png
+spaced_graph.png
