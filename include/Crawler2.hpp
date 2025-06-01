@@ -10,6 +10,7 @@
 #include <queue>
 #include <unordered_set>
 #include <vector>
+#include <set>
 
 class Crawler2 {
 public:
@@ -32,7 +33,7 @@ protected:
     RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
 
-    int batch_fetch_size = 1;
+    int batch_fetch_size = 20;
 
     std::vector<std::string> visit(const std::string& url);
 
