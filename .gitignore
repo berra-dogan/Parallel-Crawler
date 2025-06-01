@@ -17,6 +17,8 @@
 *.i
 *.ii
 *.gch
+*.png
+*.svg
 
 # Build system folders
 /build/
@@ -71,3 +73,5 @@ Thumbs.db
 .idea/
 *.swp
 *~
+web_graph.png
+spaced_graph.png

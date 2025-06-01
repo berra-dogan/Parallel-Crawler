@@ -18,6 +18,7 @@ public:
     std::queue<Page*> elements;            ///< Internal queue storing pointers to Page objects
     mutable std::mutex lock;               ///< Mutex to protect access to the queue
     std::condition_variable not_empty;     ///< Condition variable for blocking pops when queue is empty
+    std::atomic<int> n_elements;
 
     /**
      * @brief Default constructor for SafeUnboundedQueue.
