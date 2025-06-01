@@ -34,3 +34,5 @@ Crawler2 achieves more than **2× the speed** of Crawler1 by dedicating threads 
 ## Authors
 Berra Dogan
 Remi Guillou
+
+Note: ChatGBT was used for documentation and utilizing new libraries (e.g. GraphViz).
