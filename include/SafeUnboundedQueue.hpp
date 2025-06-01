@@ -52,8 +52,5 @@ public:
      */
     bool is_empty() const;
 
-
-
-    //std::atomic<int> n_elements;
 };
 
