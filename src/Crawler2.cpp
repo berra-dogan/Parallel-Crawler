@@ -333,7 +333,7 @@ void Crawler2::link_processor() {
             } 
             // add any new links to page and to to_fetch
             // Like this only one link should ever be added to to_fetch I think
-            Page* new_page = new Page(l, page->depth + 1);
+            Page* new_page = new Page(l);
             visited.add(new_page);
             to_fetch.push(new_page);
 
@@ -351,7 +351,8 @@ std::vector<std::string> Crawler2::visit(const std::string& url) {
 
 
 void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process){
-    Page* starting = new Page(start_path, 0);
+    Page* starting = new Page(start_path);
+    starting->depth = 0;
     to_fetch.push(starting);
     visited.add(starting);
 

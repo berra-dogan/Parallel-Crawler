@@ -3,7 +3,8 @@
 
 void ShortestPathGame::multi_find(size_t num_threads){
 
-    Page* starting = new Page(start_path, 0);
+    Page* starting = new Page(start_path);
+    starting->depth = 0;
     to_fetch.push(starting);
     visited.add(starting);
 
@@ -101,7 +102,7 @@ void ShortestPathGame::find(std::atomic<size_t>& active_threads){
 
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr) {
-                    neighbour_ptr = new Page(link, visited_page->depth + 1);
+                    neighbour_ptr = new Page(link);
                     visited.add(neighbour_ptr);
                     to_fetch.push(neighbour_ptr);
                 } else if (visited_page->depth + 1 < neighbour_ptr->depth) {

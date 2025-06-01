@@ -31,6 +31,7 @@ int main(){
 
     Crawler processor(base_url, 50);
     processor.multi_crawl(start_path, 16);
+    //std::cout << processor.visited.get_obj("/wiki/Francophone_economy")->depth;
 
     // ... rest of your graph
     
