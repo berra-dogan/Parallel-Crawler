@@ -1,7 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
-LDFLAGS = -lcurl
+LDFLAGS = -lcurl -latomic
 
 # Source and build folders
 SRC_DIR = src
