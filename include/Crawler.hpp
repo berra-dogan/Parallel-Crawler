@@ -13,51 +13,76 @@
 
 /**
  * @class Crawler
- * @brief A simple web crawler that recursively fetches and processes URLs from a given base URL.
+ * @brief A multithreaded web crawler that fetches and processes URLs starting from a base URL.
  */
 class Crawler {
 public:
     /**
-     * @brief Constructs a Crawler object with a given base URL.
+     * @brief Constructs a Crawler with the given base URL, max visit limit, and batch fetch size.
      * 
-     * @param base_url The root URL to be used for relative link resolution.
+     * @param base_url The root URL used to construct full URLs.
+     * @param max_visit The maximum number of pages to visit.
+     * @param batch_fetch_size The number of pages to fetch in a batch.
      */
     explicit Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size);
 
-    explicit Crawler(const std::string& base_url, size_t max_visit) ;
+    /**
+     * @brief Constructs a Crawler with the given base URL and max visit limit.
+     * 
+     * @param base_url The root URL used to construct full URLs.
+     * @param max_visit The maximum number of pages to visit.
+     */
+    explicit Crawler(const std::string& base_url, size_t max_visit);
 
     /**
-     * @brief Starts crawling from the given start path.
+     * @brief Starts single-threaded crawling from the given start path.
      * 
-     * This function performs a breadth-first search starting from the specified path.
-     * It continues crawling new links found on each page until the `max_visit` limit is reached
-     * or no more unvisited links are available.
+     * Performs a breadth-first search from the specified path until the maximum number
+     * of pages is visited or no more pages are left to crawl.
      * 
      * @param start_path The initial path (relative to base_url) to start crawling from.
-     * @param max_visit Maximum number of pages to visit. Defaults to 1000.
      */
     void crawl(const std::string& start_path);
 
-
+    /**
+     * @brief Starts multi-threaded crawling using the specified number of threads.
+     * 
+     * @param start_path The initial path (relative to base_url) to start crawling from.
+     * @param num_threads The number of worker threads to use.
+     */
     void multi_crawl(const std::string& start_path, size_t num_threads);
+
+    /**
+     * @brief Crawls the graph and computes depths of all reachable pages from start_path.
+     * 
+     * @param start_path The starting page (relative to base_url).
+     */
     void find_depths(const std::string& start_path);
+
+    /// Adjacency list representation of the crawl graph.
     std::unordered_map<std::string, std::unordered_set<std::string>> graph;
-    RefinableHashSet visited;   
+
+    /// Thread-safe set of visited URLs.
+    RefinableHashSet visited;
 
 protected:
-    std::string base_url;                      ///< The root URL used to construct full URLs.
-    SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
-                   ///< Set of already visited URLs to avoid duplication.
-    HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
+    /// The base/root URL used to construct full links.
+    std::string base_url;
 
+    /// Thread-safe queue of pages to visit.
+    SafeUnboundedQueue to_visit;
+
+    /// HTTP client used to fetch pages.
+    HttpClient http;
+
+    /// Number of pages to fetch in each batch (used in some implementations).
     int batch_fetch_size;
-
 
     /**
      * @brief Visits a single URL and extracts links from its content.
      * 
-     * This function performs an HTTP GET request to the given URL and uses a utility
-     * to parse and extract links from the HTML content. It returns a list of discovered URLs.
+     * Sends an HTTP GET request to the given URL, parses the HTML content,
+     * and extracts all valid links on the page.
      * 
      * @param url The full URL to visit.
      * @return A vector of discovered links on the page.
@@ -65,6 +90,9 @@ protected:
     std::vector<std::string> visit(const std::string& url);
 
 private:
-    size_t max_visit; 
+    /// Maximum number of pages to visit.
+    size_t max_visit;
+
+    /// Atomic counter tracking the number of visited pages.
     std::atomic<size_t> num_visited;
 };

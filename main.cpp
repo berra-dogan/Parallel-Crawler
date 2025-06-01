@@ -3,6 +3,17 @@
 #include <cmath>
 #include "include/Crawler.hpp"
 #include "include/Crawler2.hpp"
+#include "include/ShortestPathGame.hpp"
+
+int _main(){
+    std::string base_url = "https://en.wikipedia.org";
+    std::string t = "https://en.wikipedia.org/wiki/France";
+    std::string start_path = "/wiki/France";
+    std::string end_path = "/wiki/French_language";
+
+    ShortestPathGame game(base_url, start_path, end_path);
+    game.multi_find(16);
+}
 
 int main(){
     std::string base_url = "https://en.wikipedia.org";
@@ -39,8 +50,6 @@ int main(){
 
     // Export graph
 
-    Crawler2 processor(base_url, 50);
-    processor.multi_crawl(start_path, 16);
     //std::cout << processor.visited.get_obj("/wiki/Francophone_economy")->depth;
 
     // ... rest of your graph

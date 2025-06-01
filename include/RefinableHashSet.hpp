@@ -9,39 +9,40 @@
 #include <unordered_map>
 #include <functional>
 
-
-
-
-
-/*
-    Following the implementation from the textbook The Art of Multiprocessor Programming by Maurice Herlihy and Nir Shavit
-    Chapter 13
-    this takes and stores pointers to Pages
-*/
+/**
+ * @class RefinableHashSet
+ * @brief A thread-safe hash set using fine-grained locking and lock refinement for dynamic resizing.
+ *
+ * Inspired by the implementation in *The Art of Multiprocessor Programming* by Herlihy & Shavit (Chapter 13),
+ * this class stores pointers to `Page` objects and supports concurrent addition, removal, and lookup.
+ * 
+ * The resizing mechanism uses lock refinement, where a resizing thread marks itself as the owner and waits
+ * for all locks to be quiesced before reallocating buckets and locks.
+ */
 class RefinableHashSet {
 private:
-    std::vector<std::list<Page*>> table;
-    std::vector<std::unique_ptr<std::mutex>> locks;
+    std::vector<std::list<Page*>> table;  ///< Hash table buckets storing pointers to `Page` objects.
+    std::vector<std::unique_ptr<std::mutex>> locks; ///< One lock per bucket for fine-grained synchronization.
+    std::atomic<size_t> size{0}; ///< Total number of elements stored.
 
-    // total number of items in the class
-    // used to know when to resize
-    std::atomic<size_t> size{0};
-
-
-    // Simulate AtomicMarkableReference from the textbook
-    // used to know which thread has the
-    // put both in a struct to be able to modify both at same time using atomic
-    // Used for resizing
+    /**
+     * @struct OwnerInfo
+     * @brief Holds metadata about resizing ownership.
+     */
     struct OwnerInfo {
-        std::thread::id owner_id;
-        bool mark;
+        std::thread::id owner_id; ///< Thread ID of the resizing owner.
+        bool mark;                ///< True if a resize is in progress.
     };
 
-    // making it atomic like that can only be accessed by one thread  at a time
-    std::atomic<OwnerInfo> owner;
+    std::atomic<OwnerInfo> owner; ///< Atomic marker for managing exclusive access during resize.
 
 public:
-    RefinableHashSet(int capacity = 256) {
+    /**
+     * @brief Constructs a RefinableHashSet with optional initial capacity.
+     * 
+     * @param capacity The initial number of buckets. Defaults to 256.
+     */
+    explicit RefinableHashSet(int capacity = 256) {
         table.resize(capacity);
         locks.resize(capacity);
         for (int i = 0; i < capacity; ++i) {
@@ -50,6 +51,12 @@ public:
         owner.store({std::thread::id(), false});
     }
 
+    /**
+     * @brief Acquires the lock associated with the hash of a string key.
+     * Used internally to lock individual buckets.
+     *
+     * @param x The key whose bucket lock is to be acquired.
+     */
     void acquire(const std::string& x) {
         OwnerInfo who;
         std::thread::id me = std::this_thread::get_id();
@@ -58,8 +65,7 @@ public:
                 who = owner.load();
             } while (who.mark && who.owner_id != me);
 
-            std::vector<std::unique_ptr<std::mutex>>* oldLocks = &locks;
-            // Using the Hasher function associated with the data
+            auto* oldLocks = &locks;
             std::mutex* oldLock = (*oldLocks)[std::hash<std::string>{}(x) % oldLocks->size()].get();
             oldLock->lock();
 
@@ -72,10 +78,19 @@ public:
         }
     }
 
+    /**
+     * @brief Releases the lock associated with the hash of a string key.
+     *
+     * @param x The key whose bucket lock is to be released.
+     */
     void release(const std::string& x) {
         locks[std::hash<std::string>{}(x) % locks.size()]->unlock();
     }
 
+    /**
+     * @brief Resizes the hash table when load factor exceeds a threshold.
+     * Uses the lock refinement technique to prevent concurrent modifications.
+     */
     void resize() {
         int oldCapacity = table.size();
         OwnerInfo expected = {std::thread::id(), false};
@@ -83,22 +98,19 @@ public:
         int newCapacity = 2 * oldCapacity;
         if (owner.compare_exchange_strong(expected, {me, true})) {
             try {
-                if (int(table.size()) != oldCapacity){
-                    // already has been resized
-                    return;
-                } 
+                if (int(table.size()) != oldCapacity) return; // Already resized
+
                 quiesce();
 
-                std::vector<std::list<Page*>> oldTable = table;
+                auto oldTable = table;
                 table = std::vector<std::list<Page*>>(newCapacity);
 
-                // in the textbook initializefrom() but we do it as we initalize the lists
                 for (const auto& bucket : oldTable) {
                     for (const auto& item : bucket) {
                         table[std::hash<std::string>{}(item->url) % table.size()].push_back(item);
                     }
                 }
-                // initialize the locks
+
                 locks = std::vector<std::unique_ptr<std::mutex>>(newCapacity);
                 for (int j = 0; j < newCapacity; ++j) {
                     locks[j] = std::make_unique<std::mutex>();
@@ -106,23 +118,33 @@ public:
 
             } catch (...) {
                 owner.store({std::thread::id(), false});
+                throw;
             }
             owner.store({std::thread::id(), false});
         }
     }
 
+    /**
+     * @brief Ensures all locks are temporarily idle.
+     * Used before resizing to safely reallocate buckets.
+     */
     void quiesce() {
         for (auto& lock : locks) {
-            while (lock->try_lock() == false) {}
+            while (!lock->try_lock()) {}
             lock->unlock();
         }
     }
 
-
+    /**
+     * @brief Adds a new Page* to the set.
+     * 
+     * @param x Pointer to the Page object.
+     * @return True if the page was added; false if it already existed.
+     */
     bool add(Page* x) {
         acquire(x->url);
-        std::list<Page*>& bucket = table[std::hash<std::string>{}(x->url) % table.size()];
-        for (const Page* item : bucket) {
+        auto& bucket = table[std::hash<std::string>{}(x->url) % table.size()];
+        for (const auto* item : bucket) {
             if (item->url == x->url) {
                 release(x->url);
                 return false;
@@ -132,21 +154,21 @@ public:
         size.fetch_add(1);
         release(x->url);
 
-        // resize whenever the load is bigger than 0.75
-        // resize outside the lock to avoid deadlock
         if (size.load() > 0.75 * table.size()) {
             resize();
         }
-
         return true;
     }
 
+    /**
+     * @brief Removes a Page from the set by its URL.
+     * 
+     * @param x The URL of the Page to be removed.
+     * @return True if the page was found and removed; false otherwise.
+     */
     bool remove(const std::string x) {
         acquire(x);
-
-        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
-
-        // use the past Equal checker function to find
+        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
         auto it = std::find_if(bucket.begin(), bucket.end(), [&](const Page* item) {
             return item->url == x;
         });
@@ -161,11 +183,16 @@ public:
         return false;
     }
 
-
+    /**
+     * @brief Checks if a Page with a given URL exists in the set.
+     * 
+     * @param x The URL to search for.
+     * @return True if found; false otherwise.
+     */
     bool contains(const std::string x) {
         acquire(x);
-        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
-        for (const Page* item : bucket) {
+        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
+        for (const auto* item : bucket) {
             if (item->url == x) {
                 release(x);
                 return true;
@@ -175,11 +202,15 @@ public:
         return false;
     }
 
-
-
+    /**
+     * @brief Retrieves a pointer to the Page object with the given URL.
+     * 
+     * @param x The URL to search for.
+     * @return Pointer to the Page if found; nullptr otherwise.
+     */
     Page* get_obj(const std::string x) {
         acquire(x);
-        std::list<Page*>& bucket = table[std::hash<std::string>{}(x) % table.size()];
+        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
         for (Page* item : bucket) {
             if (item->url == x) {
                 release(x);
@@ -187,7 +218,6 @@ public:
             }
         }
         release(x);
-        return NULL;
+        return nullptr;
     }
-
 };
