@@ -1,5 +1,8 @@
 # Gitignore created by chatgpt
 
+
+makefile
+
 # Build files
 *.o
 *.obj

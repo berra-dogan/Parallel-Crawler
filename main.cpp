@@ -29,8 +29,8 @@ int main(){
 
     // Export graph
 
-    Crawler processor(base_url, 50);
-    processor.multi_crawl(start_path, 16);
+    Crawler processor(base_url, 100);
+    processor.multi_crawl(start_path, 10);
 
     // ... rest of your graph
     
