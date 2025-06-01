@@ -6,12 +6,14 @@
 
 class Page {
     public:
-        Page(std::string url): url(url), neighbours({}) {
-            depth = -1;
-        }
+        Page(std::string url)
+        : url(std::move(url)), depth(-1), neighbours({}), prev_pages({}) {}
+
+        Page(std::string url, int depth)
+            : url(std::move(url)), depth(depth), neighbours({}), prev_pages({}) {}
 
         const std::string url;
-        int depth;
+        std::atomic<int> depth;
         std::unordered_set<Page*> neighbours;
         std::unordered_set<Page*> prev_pages; //Only used for the ShortestPathGame
 

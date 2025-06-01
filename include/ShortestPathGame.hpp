@@ -20,11 +20,12 @@ class ShortestPathGame : public Crawler2 {
         
         void multi_find(size_t num_threads);
         void find(std::atomic<size_t>& active_threads);
-        void find_path_solutions();
     
     private:
         std::string start_path;            // Store as value
         std::string end_path;              // Store as value
+
+        void find_path_solutions();
     
         std::atomic<size_t> best_depth{std::numeric_limits<size_t>::max()};
     

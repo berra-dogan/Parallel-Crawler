@@ -2,13 +2,13 @@
 #include <iostream>
 #include "include/Crawler.hpp"
 #include "include/Crawler2.hpp"
+#include "include/ShortestPathGame.hpp"
 
 int main(){
     std::string base_url = "https://en.wikipedia.org";
     std::string t = "https://en.wikipedia.org/wiki/France";
     std::string start_path = "/wiki/France";
-
-    
+    std::string end_path = "/wiki/Spider";
 
     // int processor_n[] = {1, 4, 8, 16, 20};
 
@@ -29,26 +29,29 @@ int main(){
 
     // Export graph
 
-    Crawler processor(base_url, 50);
-    processor.multi_crawl(start_path, 16);
+    // Crawler processor(base_url, 50);
+    // processor.multi_crawl(start_path, 16);
     //std::cout << processor.visited.get_obj("/wiki/Francophone_economy")->depth;
+
+    ShortestPathGame game(base_url, start_path, end_path);
+    game.multi_find(16);
 
     // ... rest of your graph
     
-    std::ofstream out("web_graph.dot");
-    out << "digraph Web {\n";
+//     std::ofstream out("web_graph.dot");
+//     out << "digraph Web {\n";
 
-    const auto& graph = processor.graph;
+//     const auto& graph = processor.graph;
 
-    for (const auto& [from, links] : graph) {
-        if (links.empty()) continue;  // Skip nodes with no outgoing edges
+//     for (const auto& [from, links] : graph) {
+//         if (links.empty()) continue;  // Skip nodes with no outgoing edges
 
-        for (const auto& to : links) {
-            out << "    \"" << from << "\" -> \"" << to << "\";\n";
-    }
-}
+//         for (const auto& to : links) {
+//             out << "    \"" << from << "\" -> \"" << to << "\";\n";
+//     }
+// }
 
 
-    out << "}\n";
-    std::cout << "Graph written to web_graph.dot\n";
+//     out << "}\n";
+//     std::cout << "Graph written to web_graph.dot\n";
 }

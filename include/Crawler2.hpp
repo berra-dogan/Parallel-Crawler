@@ -25,6 +25,7 @@ public:
 
     void multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process);
     std::unordered_map<std::string, std::unordered_set<std::string>> graph;
+    void find_depths(const std::string& start_path);
 
 protected:
     std::string base_url;                      ///< The root URL used to construct full URLs.

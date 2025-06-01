@@ -349,6 +349,27 @@ std::vector<std::string> Crawler2::visit(const std::string& url) {
     return CrawlerUtils::extract_links(html, base_domain);
 }
 
+void Crawler2::find_depths(const std::string& start_path) {
+    Page* start = visited.get_obj(start_path);
+    if (!start) return;
+
+    std::queue<Page*> q;
+    start->depth = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+        Page* current = q.front();
+        q.pop();
+
+        for (Page* neighbor : current->neighbours) {
+            int proposed_depth = current->depth + 1;
+            if (neighbor->depth == -1 || neighbor->depth > proposed_depth) {
+                neighbor->depth = proposed_depth;
+                q.push(neighbor);
+            }
+        }
+    }
+}
 
 void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process){
     Page* starting = new Page(start_path);
@@ -375,4 +396,6 @@ void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fet
     for (auto& th : threads_process) {
         th.join();
     }
+
+    find_depths(start_path);
 }
