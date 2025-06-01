@@ -41,10 +41,6 @@ void Crawler::crawl(const std::string& start_path) {
 
         Page* visited_page = to_visit.pop();
 
-        for (Page* prev: visited_page->prev_pages){
-            graph[prev->url].insert(visited_page->url);
-        }
-
         // Atomically increment after popping to avoid going beyond max_visit
         if (num_visited.fetch_add(1) >= max_visit) {
             break;
@@ -66,7 +62,14 @@ void Crawler::crawl(const std::string& start_path) {
                     to_visit.push(neighbour_ptr);
                 }
                 visited_page->neighbours.insert(neighbour_ptr);
-                graph[visited_page->url].insert(neighbour_ptr->url);
+                auto strip_prefix = [](const std::string& url) -> std::string {
+                    const std::string prefix = "/wiki/";
+                    if (url.rfind(prefix, 0) == 0) { // rfind with pos=0 checks if prefix matches at the start
+                        return url.substr(prefix.size());
+                    }
+                    return url;
+                };
+                graph[strip_prefix(visited_page->url)].insert(strip_prefix(neighbour_ptr->url));
 
             }
         }
