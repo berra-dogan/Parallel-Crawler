@@ -5,7 +5,7 @@
 #include "include/Crawler2.hpp"
 #include "include/ShortestPathGame.hpp"
 
-int main(){
+int _main(){
     std::string base_url = "https://en.wikipedia.org";
     std::string t = "https://en.wikipedia.org/wiki/France";
     std::string start_path = "/wiki/France";
@@ -15,7 +15,7 @@ int main(){
     game.multi_find(16);
 }
 
-int _main(){
+int main(){
     std::string base_url = "https://en.wikipedia.org";
     std::string t = "https://en.wikipedia.org/wiki/France";
     std::string start_path = "/wiki/France";
