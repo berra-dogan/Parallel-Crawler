@@ -215,6 +215,8 @@ void Crawler2::link_fetcher() {
             std::vector<Page*> batch;
             Page* current;
 
+            //std::cout << "To fetch: " << to_fetch.elements.size() << std::endl;
+
             int remaining_slots = MAX_ACTIVE - active_handles.size();
             for (int i = 0; i < remaining_slots && i < batch_fetch_size; ++i) {
                 current = to_fetch.pop_no_busy_waiting();
@@ -307,17 +309,20 @@ void Crawler2::link_fetcher() {
 void Crawler2::link_processor() {
     while (num_visited < max_visit) {
         //std::cout << "hey\n";
-        std::cout << to_process.is_empty() << std::endl;
+        //std::cout << to_process.is_empty() << std::endl;
         Page* page = to_process.pop();
+        
+        //std::cout << "To process: " << to_process.elements.size() << std::endl;
 
         // Extract links from the html
         std::string base_domain = CrawlerUtils::extract_domain(page->url);
         std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_domain);
 
         num_visited.fetch_add(1);
+        
         std::cout << num_visited <<std::endl;
 
-        std::cout << page->url << std::endl;
+        //std::cout << page->url << std::endl;
 
         // we don't need to store all the html after having proceessed the link so we remove it 
         // this saves memory and is needed with the amount of pages visited
@@ -333,7 +338,7 @@ void Crawler2::link_processor() {
             } 
             // add any new links to page and to to_fetch
             // Like this only one link should ever be added to to_fetch I think
-            Page* new_page = new Page(l, page->depth + 1);
+            Page* new_page = new Page(l);
             visited.add(new_page);
             to_fetch.push(new_page);
 
@@ -351,7 +356,8 @@ std::vector<std::string> Crawler2::visit(const std::string& url) {
 
 
 void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fetch, size_t num_threads_process){
-    Page* starting = new Page(start_path, 0);
+    Page* starting = new Page(start_path);
+    starting->depth = 0;
     to_fetch.push(starting);
     visited.add(starting);
 

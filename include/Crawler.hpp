@@ -40,12 +40,14 @@ public:
 
 
     void multi_crawl(const std::string& start_path, size_t num_threads);
+    void find_depths(const std::string& start_path);
     std::unordered_map<std::string, std::unordered_set<std::string>> graph;
+    RefinableHashSet visited;   
 
 protected:
     std::string base_url;                      ///< The root URL used to construct full URLs.
     SafeUnboundedQueue to_visit;               ///< Queue of URLs to be visited.
-    RefinableHashSet visited;                  ///< Set of already visited URLs to avoid duplication.
+                   ///< Set of already visited URLs to avoid duplication.
     HttpClient http;                           ///< HTTP client for sending requests and receiving responses.
 
     int batch_fetch_size;

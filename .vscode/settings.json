@@ -76,6 +76,7 @@
         "optional": "cpp",
         "queue": "cpp",
         "variant": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "fstream": "cpp"
     }
 }

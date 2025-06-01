@@ -18,8 +18,31 @@ std::vector<std::string> Crawler::visit(const std::string& url) {
 }
 
 
+void Crawler::find_depths(const std::string& start_path) {
+    Page* start = visited.get_obj(start_path);
+    if (!start) return;
+
+    std::queue<Page*> q;
+    start->depth = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+        Page* current = q.front();
+        q.pop();
+
+        for (Page* neighbor : current->neighbours) {
+            int proposed_depth = current->depth + 1;
+            if (neighbor->depth == -1 || neighbor->depth > proposed_depth) {
+                neighbor->depth = proposed_depth;
+                q.push(neighbor);
+            }
+        }
+    }
+}
+
 void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
-    Page* starting = new Page(start_path, 0);
+    Page* starting = new Page(start_path);
+    starting->depth = 0;
     to_visit.push(starting);
     visited.add(starting);
 
@@ -33,6 +56,8 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
         th.join();
     }
 
+    find_depths(start_path);
+
     std::cout << "Total visited: " << num_visited << std::endl;
 }
 
@@ -40,10 +65,6 @@ void Crawler::crawl(const std::string& start_path) {
     while (num_visited.load() < max_visit) {
 
         Page* visited_page = to_visit.pop();
-
-        for (Page* prev: visited_page->prev_pages){
-            graph[prev->url].insert(visited_page->url);
-        }
 
         // Atomically increment after popping to avoid going beyond max_visit
         if (num_visited.fetch_add(1) >= max_visit) {
@@ -58,15 +79,19 @@ void Crawler::crawl(const std::string& start_path) {
 
                 Page* neighbour_ptr = visited.get_obj(link);
                 if (!neighbour_ptr) {
-                    neighbour_ptr = new Page(link, visited_page->depth + 1);
+                    neighbour_ptr = new Page(link);
                     visited.add(neighbour_ptr);
                     to_visit.push(neighbour_ptr);
-                } else if (visited_page->depth + 1 < neighbour_ptr->depth) {
-                    neighbour_ptr->depth = visited_page->depth + 1;
-                    to_visit.push(neighbour_ptr);
-                }
+                } 
                 visited_page->neighbours.insert(neighbour_ptr);
-                graph[visited_page->url].insert(neighbour_ptr->url);
+                auto strip_prefix = [](const std::string& url) -> std::string {
+                    const std::string prefix = "/wiki/";
+                    if (url.rfind(prefix, 0) == 0) { // rfind with pos=0 checks if prefix matches at the start
+                        return url.substr(prefix.size());
+                    }
+                    return url;
+                };
+                graph[strip_prefix(visited_page->url)].insert(strip_prefix(neighbour_ptr->url));
 
             }
         }
