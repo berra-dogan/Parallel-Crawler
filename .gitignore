@@ -19,6 +19,7 @@
 *.gch
 *.png
 *.svg
+*.dot
 
 # Build system folders
 /build/
