@@ -5,7 +5,7 @@ void ShortestPathGame::multi_find(size_t num_threads){
 
     Page* starting = new Page(start_path);
     starting->depth = 0;
-    to_visit.push(starting);
+    to_fetch.push(starting);
     visited.add(starting);
 
     std::vector<std::thread> threads(num_threads);
@@ -68,58 +68,56 @@ void ShortestPathGame::find_path_solutions() {
     }
 }
 
+void ShortestPathGame::find(std::atomic<size_t>& active_threads){
 
-void ShortestPathGame::find(std::atomic<size_t>& active_threads) {
     while (true) {
-        Page* visited_page = to_visit.pop_no_busy_waiting();
+        Page* visited_page = to_fetch.pop_no_busy_waiting();
 
-        if (!visited_page) {
+        if (visited_page==nullptr){
             active_threads.fetch_sub(1);
-            if (active_threads.load(std::memory_order_acquire) == 0) {
-                to_visit.not_empty.notify_all();
+            if (active_threads==0){
                 std::cout << "Best depth: " << best_depth << std::endl;
+                to_fetch.not_empty.notify_all();
                 return;
+            };
+            std::unique_lock<std::mutex> lk(to_fetch.lock);
+            while (to_fetch.elements.empty()) {
+                if (active_threads==0) return;
+                to_fetch.not_empty.wait(lk);
             }
-
-            std::unique_lock<std::mutex> lk(to_visit.lock);
-            while (to_visit.elements.empty()) {
-                if (active_threads.load(std::memory_order_acquire) == 0) return;
-                to_visit.not_empty.wait(lk);
-            }
-
-            active_threads.fetch_add(1);
+            active_threads.fetch_add(1);  
+            continue;
+        }  
+        if (visited_page->depth >= best_depth) {
             continue;
         }
 
         std::string current_url = base_url + visited_page->url;
         std::cout << current_url << "     " << best_depth << std::endl;
 
-        if (visited_page->depth >= int(best_depth)) continue;
-
         for (const auto& link : visit(current_url)) {
-            if (!CrawlerUtils::is_valid_link(link, base_url)) continue;
-
-            Page* neighbour_ptr = visited.get_obj(link);
-            size_t candidate_depth = visited_page->depth + 1;
-
-            if (!neighbour_ptr) {
-                neighbour_ptr = new Page(link, candidate_depth);
-                visited.add(neighbour_ptr);
-                to_visit.push(neighbour_ptr);
-            } else {
-                int old_depth = neighbour_ptr->depth;
-                if (candidate_depth < old_depth) {
-                    neighbour_ptr->depth = candidate_depth;
-                    to_visit.push(neighbour_ptr);
+            if (CrawlerUtils::is_valid_link(link, base_url)) {
+                Page* neighbour_ptr = visited.get_obj(link);
+                if (!neighbour_ptr) {
+                    neighbour_ptr = new Page(link, visited_page->depth + 1);
+                    visited.add(neighbour_ptr);
+                    to_fetch.push(neighbour_ptr);
+                } else if (visited_page->depth + 1 < neighbour_ptr->depth) {
+                    neighbour_ptr->depth = visited_page->depth + 1;
+                    to_fetch.push(neighbour_ptr);
                 }
-            }
-
-            neighbour_ptr->prev_pages.insert(visited_page);
-
-            if (link == end_path) {
-                size_t prev_best = best_depth.load();
-                while (candidate_depth < prev_best &&
-                       !best_depth.compare_exchange_weak(prev_best, candidate_depth)) {}
+                neighbour_ptr->prev_pages.insert(visited_page);
+                visited_page->neighbours.insert(neighbour_ptr);
+                if (link == end_path) {
+                    size_t candidate_depth = visited_page->depth + 1;
+                    //assert(candidate_depth <= best_depth);
+                    if (candidate_depth < best_depth) {
+                        best_depth = candidate_depth;
+                        // store best path if you track it
+                    } else {
+                        // add alternative solution
+                    }
+                }
             }
         }
     }

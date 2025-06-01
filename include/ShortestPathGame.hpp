@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "Crawler.hpp"
+#include "Crawler2.hpp"
 #include "SafeUnboundedQueue.hpp"
 #include "RefinableHashSet.hpp"
 #include "HttpClient.hpp"
@@ -11,13 +11,13 @@
  * @class ShortestPathGame
  * @brief A multithreaded crawler that finds the shortest path between two URLs on a website.
  * 
- * Inherits from the `Crawler` base class. The goal is to identify the shortest hyperlink path
+ * Inherits from the `Crawler2` base class. The goal is to identify the shortest hyperlink path
  * from a given start page to a target end page by traversing the web graph starting from the
  * `start_path` using a breadth-first strategy.
  * 
  * If multiple solutions of the same shortest length exist, they are all stored.
  */
-class ShortestPathGame : public Crawler {
+class ShortestPathGame : public Crawler2 {
 public:
     /**
      * @brief Constructor for ShortestPathGame.
@@ -31,7 +31,7 @@ public:
     explicit ShortestPathGame(const std::string& base_url,
                               const std::string& start_path,
                               const std::string& end_path)
-        : Crawler(base_url, 0), start_path(start_path), end_path(end_path) {
+        : Crawler2(base_url, 0), start_path(start_path), end_path(end_path) {
         if (start_path == end_path) {
             throw std::invalid_argument("Start and end are the same");
         }
