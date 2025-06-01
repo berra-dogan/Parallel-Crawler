@@ -10,18 +10,17 @@ int main(){
 
     
 
-    int processor_n[] = {1, 4, 8, 16, 20};
+    int processor_n[] = {1, 2, 4, 8};
 
-    for (auto i: processor_n) {
-        std::cout << i << std::endl;
-        Crawler2 processor(base_url, 100);
 
-        auto start = std::chrono::steady_clock::now();
-        processor.multi_crawl(base_url + start_path, 1, i);
-        auto end = std::chrono::steady_clock::now();
-        auto rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        std::cout << "Processors: " << i << ", Running time : " << rt << std::endl;
-    }
+    Crawler2 processor(base_url, 1000);
+    int i = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    processor.multi_crawl(base_url + start_path, 1, 16);
+    auto end = std::chrono::steady_clock::now();
+    auto rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    std::cout << "Processors: " << i << ", Running time : " << rt << std::endl;
 
 
     // Crawler2 processor2(base_url, 50);
