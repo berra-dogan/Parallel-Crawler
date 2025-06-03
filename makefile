@@ -6,6 +6,7 @@ LDFLAGS = -lcurl
 # Source and build folders
 SRC_DIR = src
 BUILD_DIR = build
+MAIN_DIR = src/bin
 
 # Source files
 COMMON_SRC = $(wildcard $(SRC_DIR)/*.cpp)
@@ -14,17 +15,17 @@ COMMON_SRC = $(wildcard $(SRC_DIR)/*.cpp)
 COMMON_OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(COMMON_SRC))
 
 # Targets
-TARGETS = main game
+TARGETS := $(BUILD_DIR)/main $(BUILD_DIR)/game
 
 # Default target: build both
 all: $(TARGETS)
 
 # Rules for each target
-main: main.cpp $(COMMON_OBJ)
+$(BUILD_DIR)/main: $(MAIN_DIR)/main.cpp $(COMMON_OBJ)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-game: game.cpp $(COMMON_OBJ)
+$(BUILD_DIR)/game: $(MAIN_DIR)/game.cpp $(COMMON_OBJ)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 

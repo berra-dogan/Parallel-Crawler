@@ -1,4 +1,6 @@
 #include "../include/CrawlerUtils.hpp"
+#include <fstream>
+#include <unordered_set>
 
 namespace CrawlerUtils {
 
@@ -40,6 +42,46 @@ namespace CrawlerUtils {
         }
     
         return links;
+    }
+
+    void graphing(std::unordered_map<std::string, std::unordered_set<std::string>>& graph){
+        // Step 1: Compute in-degree for each node
+        std::unordered_map<std::string, int> in_degree;
+        for (const auto& [from, tos] : graph) {
+            for (const auto& to : tos) {
+                in_degree[to]++;
+            }
+            // Ensure all nodes appear in the map, even if in-degree is zero
+            if (in_degree.find(from) == in_degree.end()) {
+                in_degree[from] = 0;
+            }
+        }
+    
+        // Step 2: Open DOT file for writing
+        std::ofstream out("web_graph.dot");
+        out << "digraph Web {\n";
+        out << "    node [shape=circle style=filled fillcolor=lightblue fixedsize=true fontname=\"Arial\"];\n";
+    
+        // Find the maximum in-degree for normalization
+        int max_deg = 0;
+        for (const auto& [node, deg] : in_degree) {
+            max_deg = std::max(max_deg, deg);
+        }
+    
+        // Step 3: Write nodes with size proportional to in-degree
+        for (const auto& [node, deg] : in_degree) {
+            double size = 1 + 4 * (double(deg) / std::max(1, max_deg));  // size in inches
+            out << "    \"" << node << "\" [width=" << size << " height=" << size << "];\n";
+        }
+    
+        // Step 4: Write edges
+        for (const auto& [from, tos] : graph) {
+            for (const auto& to : tos) {
+                out << "    \"" << from << "\" -> \"" << to << "\";\n";
+            }
+        }
+    
+        out << "}\n";
     }
     
 

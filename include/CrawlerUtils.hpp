@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <fstream>
+#include <unordered_set>
 
 /**
  * @namespace CrawlerUtils
@@ -44,5 +46,14 @@ namespace CrawlerUtils {
      * @return A vector of valid links found in the HTML content.
      */
     std::vector<std::string> extract_links(const std::string& html, const std::string& base_domain);
+
+    /**
+     * @brief Graphs the adjacency graph recorded by a crwler.
+     * 
+     * Normalizes the graph and writes nodes with size proportional to in-degree.
+     * 
+     * @param graph The graph to be displayed.
+     */
+    void graphing(std::unordered_map<std::string, std::unordered_set<std::string>>& graph);
 
 }
