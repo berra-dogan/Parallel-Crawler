@@ -16,7 +16,7 @@
  * @class Crawler
  * @brief A multithreaded web crawler that fetches and processes URLs starting from a base URL.
  */
-class Crawler {
+class Crawler1 {
 public:
     /**
      * @brief Constructs a Crawler with the given base URL, max visit limit, and batch fetch size.
@@ -25,7 +25,7 @@ public:
      * @param max_visit The maximum number of pages to visit.
      * @param batch_fetch_size The number of pages to fetch in a batch.
      */
-    explicit Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size);
+    explicit Crawler1(const std::string& base_url, size_t max_visit, int batch_fetch_size);
 
     /**
      * @brief Constructs a Crawler with the given base URL and max visit limit.
@@ -33,7 +33,7 @@ public:
      * @param base_url The root URL used to construct full URLs.
      * @param max_visit The maximum number of pages to visit.
      */
-    explicit Crawler(const std::string& base_url, size_t max_visit);
+    explicit Crawler1(const std::string& base_url, size_t max_visit);
 
     /**
      * @brief Starts single-threaded crawling from the given start path.

@@ -15,13 +15,17 @@ COMMON_SRC = $(wildcard $(SRC_DIR)/*.cpp)
 COMMON_OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(COMMON_SRC))
 
 # Targets
-TARGETS := $(BUILD_DIR)/main $(BUILD_DIR)/game
+TARGETS := $(BUILD_DIR)/main1 $(BUILD_DIR)/main2 $(BUILD_DIR)/game
 
 # Default target: build both
 all: $(TARGETS)
 
 # Rules for each target
-$(BUILD_DIR)/main: $(MAIN_DIR)/main.cpp $(COMMON_OBJ)
+$(BUILD_DIR)/main1: $(MAIN_DIR)/main1.cpp $(COMMON_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(BUILD_DIR)/main2: $(MAIN_DIR)/main2.cpp $(COMMON_OBJ)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 

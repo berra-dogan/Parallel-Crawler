@@ -1,24 +1,24 @@
 #include "../include/Crawler.hpp"
 #include <curl/curl.h>
 
-Crawler::Crawler(const std::string& base_url, size_t max_visit, int batch_fetch_size) : base_url(base_url), batch_fetch_size(batch_fetch_size), max_visit(max_visit) {
+Crawler1::Crawler1(const std::string& base_url, size_t max_visit, int batch_fetch_size) : base_url(base_url), batch_fetch_size(batch_fetch_size), max_visit(max_visit) {
     num_visited = 0;
 }
 
-Crawler::Crawler(const std::string& base_url, size_t max_visit) : base_url(base_url), batch_fetch_size(10), max_visit(max_visit){
+Crawler1::Crawler1(const std::string& base_url, size_t max_visit) : base_url(base_url), batch_fetch_size(10), max_visit(max_visit){
     num_visited = 0;
 }
 
 
 
-std::vector<std::string> Crawler::visit(const std::string& url) {
+std::vector<std::string> Crawler1::visit(const std::string& url) {
     std::string html = http.fetch(url);
     std::string base_domain = CrawlerUtils::extract_domain(url);
     return CrawlerUtils::extract_links(html, base_domain);
 }
 
 
-void Crawler::find_depths(const std::string& start_path) {
+void Crawler1::find_depths(const std::string& start_path) {
     Page* start = visited.get_obj(start_path);
     if (!start) return;
 
@@ -40,7 +40,7 @@ void Crawler::find_depths(const std::string& start_path) {
     }
 }
 
-void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
+void Crawler1::multi_crawl(const std::string& start_path, size_t num_threads){
     Page* starting = new Page(start_path);
     starting->depth = 0;
     to_visit.push(starting);
@@ -49,7 +49,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
     std::vector<std::thread> threads(num_threads);
 
     for (size_t i = 0; i < num_threads; ++i) {
-        threads[i] = std::thread(&Crawler::crawl, this, start_path);
+        threads[i] = std::thread(&Crawler1::crawl, this, start_path);
     }
 
     for (auto& th : threads) {
@@ -61,7 +61,7 @@ void Crawler::multi_crawl(const std::string& start_path, size_t num_threads){
     std::cout << "Total visited: " << num_visited << std::endl;
 }
 
-void Crawler::crawl(const std::string& start_path) {
+void Crawler1::crawl(const std::string& start_path) {
     while (num_visited.load() < max_visit) {
 
         Page* visited_page = to_visit.pop();
