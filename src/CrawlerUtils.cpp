@@ -1,6 +1,4 @@
 #include "../include/CrawlerUtils.hpp"
-#include <fstream>
-#include <unordered_set>
 
 namespace CrawlerUtils {
 
