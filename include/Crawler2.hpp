@@ -71,6 +71,9 @@ public:
     /// Adjacency list representing the link graph discovered during crawling.
     std::unordered_map<std::string, std::unordered_set<std::string>> graph;
 
+    /// Thread-safe set of already visited URLs to prevent redundant fetches.
+    RefinableHashSet visited;
+
 protected:
     /// The base/root URL used to resolve relative URLs.
     std::string base_url;
@@ -81,8 +84,7 @@ protected:
     /// Queue of fetched content waiting to be processed (input to the processor).
     SafeUnboundedQueue to_process;
 
-    /// Thread-safe set of already visited URLs to prevent redundant fetches.
-    RefinableHashSet visited;
+
 
     /// HTTP client used for sending GET requests and receiving page content.
     HttpClient http;

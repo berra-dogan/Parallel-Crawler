@@ -30,7 +30,10 @@ void Crawler2::link_fetcher() {
                 CURL* easy = curl_easy_init();
                 page->page_content.clear();
 
-                curl_easy_setopt(easy, CURLOPT_URL, page->url.c_str());
+                std::string url_str = base_url + page->url;
+                const char* url = url_str.c_str();
+
+                curl_easy_setopt(easy, CURLOPT_URL, url);
                 curl_easy_setopt(easy, CURLOPT_WRITEFUNCTION, +[](char* ptr, size_t size, size_t nmemb, void* userdata) -> size_t {
                     auto* content = static_cast<std::string*>(userdata);
                     content->append(ptr, size * nmemb);
@@ -113,19 +116,15 @@ void Crawler2::link_processor() {
         //std::cout << "hey\n";
         //std::cout << to_process.is_empty() << std::endl;
         Page* page = to_process.pop();
-        std::cout << page << std::endl;
+
         std::cout << page->url << std::endl;
         
         //std::cout << "To process: " << to_process.elements.size() << std::endl;
 
         // Extract links from the html
-        std::string base_domain = CrawlerUtils::extract_domain(page->url);
-        std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_domain);
+        std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_url);
 
         num_visited.fetch_add(1);
-        
-        std::cout << num_visited <<std::endl;
-
         //std::cout << page->url << std::endl;
 
         // we don't need to store all the html after having proceessed the link so we remove it 
@@ -133,9 +132,7 @@ void Crawler2::link_processor() {
         page->page_content.clear(); 
 
         for (std::string& link : links) {
-            graph[page->url].insert(link);
-
-            std::string l = base_url + link;
+            std::string l = link;
 
             if (visited.contains(l)) {
                 continue;
@@ -145,7 +142,7 @@ void Crawler2::link_processor() {
             Page* new_page = new Page(l);
             visited.add(new_page);
             to_fetch.push(new_page);
-
+            page->neighbours.insert(new_page);
         }
     }
 }

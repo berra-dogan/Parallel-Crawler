@@ -38,49 +38,54 @@ namespace CrawlerUtils {
             }
             begin = match.suffix().first;
         }
+
     
         return links;
     }
 
-    void graphing(std::unordered_map<std::string, std::unordered_set<std::string>>& graph){
-        // Step 1: Compute in-degree for each node
-        std::unordered_map<std::string, int> in_degree;
-        for (const auto& [from, tos] : graph) {
-            for (const auto& to : tos) {
-                in_degree[to]++;
-            }
-            // Ensure all nodes appear in the map, even if in-degree is zero
-            if (in_degree.find(from) == in_degree.end()) {
-                in_degree[from] = 0;
-            }
-        }
-    
-        // Step 2: Open DOT file for writing
+
+
+    void graphing(Page* start_node) {
+        std::cout << "started" << std::endl;
+        if (!start_node) return;
+
         std::ofstream out("web_graph.dot");
+        if (!out) {
+            std::cerr << "Error: Cannot open web_graph.dot for writing.\n";
+            return;
+        }
+        std::cout << "start" << std::endl;
+
         out << "digraph Web {\n";
         out << "    node [shape=circle style=filled fillcolor=lightblue fixedsize=true fontname=\"Arial\"];\n";
-    
-        // Find the maximum in-degree for normalization
-        int max_deg = 0;
-        for (const auto& [node, deg] : in_degree) {
-            max_deg = std::max(max_deg, deg);
-        }
-    
-        // Step 3: Write nodes with size proportional to in-degree
-        for (const auto& [node, deg] : in_degree) {
-            double size = 1 + 4 * (double(deg) / std::max(1, max_deg));  // size in inches
-            out << "    \"" << node << "\" [width=" << size << " height=" << size << "];\n";
-        }
-    
-        // Step 4: Write edges
-        for (const auto& [from, tos] : graph) {
-            for (const auto& to : tos) {
-                out << "    \"" << from << "\" -> \"" << to << "\";\n";
+
+        std::unordered_set<Page*> visited;
+        std::queue<Page*> q;
+        q.push(start_node);
+        visited.insert(start_node);
+
+        while (!q.empty()) {
+            Page* current = q.front(); q.pop();
+            if (!current) {
+                continue;
+            }
+            std::cout << current << std::endl;
+            out << "    \"" << current->url << "\";\n";
+            std::cout << current->url << std::endl;
+
+            for (Page* neighbor : current->neighbours) {
+                if (neighbor) {
+                    out << "    \"" << current->url << "\" -> \"" << neighbor->url << "\";\n";
+                    if (visited.insert(neighbor).second) {
+                        q.push(neighbor);
+                    }
+                }
+
             }
         }
-    
+
         out << "}\n";
+        out.close();
     }
-    
 
 }

@@ -72,7 +72,7 @@ void Crawler1::crawl(const std::string& start_path) {
         }
 
         std::string current_url = base_url + visited_page->url;
-        //std::cout << current_url << std::endl;
+        std::cout << current_url << std::endl;
 
         for (const auto& link : visit(current_url)) {
             if (CrawlerUtils::is_valid_link(link, base_url)) {
@@ -84,14 +84,6 @@ void Crawler1::crawl(const std::string& start_path) {
                     to_visit.push(neighbour_ptr);
                 } 
                 visited_page->neighbours.insert(neighbour_ptr);
-                auto strip_prefix = [](const std::string& url) -> std::string {
-                    const std::string prefix = "/wiki/";
-                    if (url.rfind(prefix, 0) == 0) { // rfind with pos=0 checks if prefix matches at the start
-                        return url.substr(prefix.size());
-                    }
-                    return url;
-                };
-                graph[strip_prefix(visited_page->url)].insert(strip_prefix(neighbour_ptr->url));
 
             }
         }
