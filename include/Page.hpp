@@ -4,6 +4,9 @@
 #include <vector>
 #include <unordered_set>
 
+#include <atomic>
+
+
 /**
  * @class Page
  * @brief Represents a web page in the crawling graph.

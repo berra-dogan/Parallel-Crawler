@@ -26,10 +26,10 @@ int main(){
     Crawler2 processor(base_url, 10000);
 
     auto start = std::chrono::steady_clock::now();
-    processor.multi_crawl(base_url + start_path, 1, 16);
+    processor.multi_crawl(base_url + start_path, 1, 4);
     auto end = std::chrono::steady_clock::now();
     auto rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "Processors: " << 3 << ", Running time : " << rt << std::endl;
         
-    CrawlerUtils::graphing(processor.graph);
+    //CrawlerUtils::graphing(processor.graph);
 }

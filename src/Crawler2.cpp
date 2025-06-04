@@ -7,7 +7,7 @@ Crawler2::Crawler2(const std::string& base_url, size_t max_visit) : base_url(bas
 
 void Crawler2::link_fetcher() {
     CURLM* multi = curl_multi_init();
-    constexpr int MAX_ACTIVE = 8;
+    constexpr int MAX_ACTIVE = 32;
     std::unordered_map<CURL*, Page*> handle_to_page;
     std::set<CURL*> active_handles;
 
@@ -113,6 +113,8 @@ void Crawler2::link_processor() {
         //std::cout << "hey\n";
         //std::cout << to_process.is_empty() << std::endl;
         Page* page = to_process.pop();
+        std::cout << page << std::endl;
+        std::cout << page->url << std::endl;
         
         //std::cout << "To process: " << to_process.elements.size() << std::endl;
 
