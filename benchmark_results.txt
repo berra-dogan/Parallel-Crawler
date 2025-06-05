@@ -1,0 +1,11 @@
+Crawler1 Benchmark Results
+Visit count: 10
+Processors: 1, Running time: 2334 ms
+Processors: 2, Running time: 1437 ms
+Processors: 3, Running time: 1118 ms
+Processors: 4, Running time: 1032 ms
+Processors: 8, Running time: 872 ms
+Processors: 16, Running time: 873 ms
+Processors: 20, Running time: 863 ms
+
+Visit count: 100

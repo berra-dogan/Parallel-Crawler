@@ -69,9 +69,9 @@ namespace CrawlerUtils {
             if (!current) {
                 continue;
             }
-            std::cout << current << std::endl;
+            //std::cout << current << std::endl;
             out << "    \"" << current->url << "\";\n";
-            std::cout << current->url << std::endl;
+            //std::cout << current->url << std::endl;
 
             for (Page* neighbor : current->neighbours) {
                 if (neighbor) {

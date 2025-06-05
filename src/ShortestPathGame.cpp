@@ -122,3 +122,10 @@ void ShortestPathGame::find(std::atomic<size_t>& active_threads){
         }
     }
 }
+
+
+std::vector<std::string> ShortestPathGame::visit(const std::string& url) {
+    std::string html = http.fetch(url);
+    std::string base_domain = CrawlerUtils::extract_domain(url);
+    return CrawlerUtils::extract_links(html, base_domain);
+}

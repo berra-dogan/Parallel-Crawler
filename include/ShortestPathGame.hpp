@@ -64,6 +64,17 @@ private:
      */
     void find_path_solutions();
 
+    /**
+     * @brief Visits a single URL and extracts links from its content.
+     * 
+     * Sends an HTTP GET request to the given URL, parses the HTML content,
+     * and extracts all valid links on the page.
+     * 
+     * @param url The full URL to visit.
+     * @return A vector of discovered links on the page.
+     */
+    std::vector<std::string> visit(const std::string& url);
+
     std::atomic<size_t> best_depth{std::numeric_limits<size_t>::max()};  ///< Tracks the shortest depth discovered so far.
 
     std::vector<std::vector<std::string>> solutions;  ///< Stores all discovered shortest paths from start_path to end_path.

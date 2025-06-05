@@ -92,14 +92,6 @@ protected:
     /// Number of pages to fetch per batch (used internally).
     int batch_fetch_size = 20;
 
-    /**
-     * @brief Sends an HTTP GET request to a URL and extracts valid links.
-     * 
-     * @param url The full URL to fetch and parse.
-     * @return A vector of discovered valid links on the page.
-     */
-    std::vector<std::string> visit(const std::string& url);
-
 private:
     /// Maximum number of pages allowed to be visited.
     size_t max_visit;

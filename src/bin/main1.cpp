@@ -6,8 +6,8 @@
 int main(){
     int n_threads= 16;
 
-    std::string base_url = "https://en.wikipedia.org/wiki";
-    std::string start_path = "France";
+    std::string base_url = "https://en.wikipedia.org";
+    std::string start_path = "/wiki/France";
 
     Crawler1 processor(base_url, 100);
 
@@ -17,6 +17,6 @@ int main(){
     auto rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "Threads: " << n_threads << ", Running time : " << rt << std::endl;
         
-    CrawlerUtils::graphing(processor.visited.get_obj("France"));
+    CrawlerUtils::graphing(processor.visited.get_obj(start_path));
 
 }
