@@ -88,7 +88,7 @@ protected:
     HttpClient http;
 
     /// Number of pages to fetch per batch (used internally).
-    int batch_fetch_size = 20;
+    const int batch_fetch_size = 20;
 
     /**
      * @brief Sends an HTTP GET request to a URL and extracts valid links.
@@ -100,7 +100,7 @@ protected:
 
 private:
     /// Maximum number of pages allowed to be visited.
-    size_t max_visit;
+    const size_t max_visit;
 
     /// Atomic counter of how many pages have been visited so far.
     std::atomic<size_t> num_visited;

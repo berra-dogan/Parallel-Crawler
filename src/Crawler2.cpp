@@ -150,8 +150,6 @@ void Crawler2::link_processor() {
     }
 }
 
-
-
 std::vector<std::string> Crawler2::visit(const std::string& url) {
     std::string html = http.fetch(url);
     std::string base_domain = CrawlerUtils::extract_domain(url);
