@@ -44,7 +44,7 @@ class FineGrainedHashSet {
     
     public:
         FineGrainedHashSet()
-            : table(NUM_BUCKETS), locks(NUM_BUCKETS) {}  // ✅ safe initialization
+            : table(NUM_BUCKETS), locks(NUM_BUCKETS) {}
     
         bool add(Page* x) {
             size_t idx = std::hash<std::string>{}(x->url) % NUM_BUCKETS;
@@ -91,7 +91,6 @@ class FineGrainedHashSet {
     
 template <typename SetType>
 void benchmark_set(const std::string& name, SetType& set, int num_threads, int ops_per_thread) {
-    auto start = std::chrono::high_resolution_clock::now();
 
     auto worker = [&](int tid) {
         std::mt19937 gen(tid);  // Thread-local RNG
@@ -118,9 +117,6 @@ void benchmark_set(const std::string& name, SetType& set, int num_threads, int o
 
     for (auto& t : threads) t.join();
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    //std::cout << name << " completed in " << elapsed.count() << " seconds.\n";
 }
 
 void print_table_header() {

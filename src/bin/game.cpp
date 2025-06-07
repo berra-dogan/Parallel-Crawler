@@ -7,7 +7,7 @@ int main() {
     std::string start_path = "/wiki/École_polytechnique";
     std::string end_path = "/wiki/Spider";
 
-    ShortestPathGame game(base_url, start_path, end_path, true);
+    ShortestPathGame game(base_url, start_path, end_path, false);
 
     auto start_time = std::chrono::high_resolution_clock::now();
     
