@@ -9,10 +9,10 @@ int main() {
     std::string start_path = "/wiki/France";
 
     int processor_n[] = {1, 2, 3, 4, 8, 16, 20};
+    int processor_n2[] = {1, 2, 3, 7, 15, 19};
     int visit_n[] = {10, 100, 1000};
 
-
-    std::ofstream out("benchmark_results.txt");
+    std::ofstream out("benchmark_results_avg.txt");
     if (!out) {
         std::cerr << "Failed to open benchmark_results.txt for writing." << std::endl;
         return 1;
@@ -23,18 +23,19 @@ int main() {
         out << "Visit count: " << j << std::endl;
         std::cout << "Visit count: " << j << std::endl;
         for (auto i : processor_n) {
-            long long rt = -1;
+            long long rt = 0;
 
-            Crawler1 processor(base_url, j);
-            auto start = std::chrono::steady_clock::now();
-            processor.multi_crawl(start_path, i);
-            auto end = std::chrono::steady_clock::now();
-            rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            for (int iter = 0; iter < 5; iter++) {
+                Crawler1 processor(base_url, j);
+                auto start = std::chrono::steady_clock::now();
+                processor.multi_crawl(start_path, i);
+                auto end = std::chrono::steady_clock::now();
+                rt += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            }
 
 
-
-            out << "Processors: " << i << ", Running time: " << rt << " ms\n";
-            std::cout << "Processors: " << i << ", Running time: " << rt << " ms\n";
+            out << "Processors: " << i << ", Running time: " << rt / 5 << " ms\n";
+            std::cout << "Processors: " << i << ", Running time: " << rt / 5 << " ms\n";
         }
         out << "\n";
     }
@@ -42,21 +43,27 @@ int main() {
     out << "Crawler2 Benchmark Results\n";
     for (auto j : visit_n) {
         out << "Visit count: " << j << std::endl;
-        for (auto i : processor_n) {
-            long long rt = -1;
+        for (auto i : processor_n2) {
 
-            Crawler2 processor(base_url, j);
-            auto start = std::chrono::steady_clock::now();
-            processor.multi_crawl(start_path, 1, i);
-            auto end = std::chrono::steady_clock::now();
-            rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            long long rt = 0;
 
-            out << "Processors: " << i << ", Running time: " << rt << " ms\n";
+            for (int iter = 0; iter < 5; iter++) {
+                Crawler2 processor(base_url, j);
+                auto start = std::chrono::steady_clock::now();
+                processor.multi_crawl(start_path, 1, i);
+                auto end = std::chrono::steady_clock::now();
+                rt += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            }
+
+
+            out << "Processors: " << i + 1 << ", Running time: " << rt / 5 << " ms\n";
+            std::cout << "Processors: " << i+1 << ", Running time: " << rt / 5 << " ms\n";
         }
         out << "\n";
     }
-
+    
     out.close();
+
     return 0;
 
 

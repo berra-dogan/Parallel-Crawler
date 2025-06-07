@@ -7,7 +7,7 @@ Crawler2::Crawler2(const std::string& base_url, size_t max_visit) : base_url(bas
 
 void Crawler2::link_fetcher() {
     CURLM* multi = curl_multi_init();
-    constexpr int MAX_ACTIVE = 32;
+    constexpr int MAX_ACTIVE = 256;
     std::unordered_map<CURL*, Page*> handle_to_page;
     std::set<CURL*> active_handles;
 
@@ -18,6 +18,7 @@ void Crawler2::link_fetcher() {
             Page* current;
 
             //std::cout << "To fetch: " << to_fetch.elements.size() << std::endl;
+            //std::cout << "To process: " << to_process.elements.size() << std::endl;
 
             int remaining_slots = MAX_ACTIVE - active_handles.size();
             for (int i = 0; i < remaining_slots && i < batch_fetch_size; ++i) {
@@ -99,11 +100,6 @@ void Crawler2::link_fetcher() {
                 }
             }
         }
-
-        // Avoid tight loop if nothing to do
-        if (active_handles.empty() && to_fetch.is_empty()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        }
     }
 
     curl_multi_cleanup(multi);
@@ -119,9 +115,11 @@ void Crawler2::link_processor() {
 
         // null pointer, happens to finish thread execution
         if (!page) {
-            return;
+            //std::cout << "empty" << std::endl;
+            break;
         }
         //std::cout << "To process: " << to_process.elements.size() << std::endl;
+        //std::cout << page->url << std::endl;
 
         if (num_visited.fetch_add(1) >= max_visit) {
             break;
@@ -197,11 +195,6 @@ void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fet
 
     for (auto& th : threads_fetch) {
         th.join();
-    }
-
-    // end process threads incase they get stuck on pop
-    for (size_t i = 0; i < num_threads_process; ++i ) {
-        to_process.push(nullptr);
     }
     
     for (auto& th : threads_process) {

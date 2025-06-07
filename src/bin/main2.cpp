@@ -23,18 +23,16 @@ int main(){
     //     std::cout << "Processors: " << i << ", Running time : " << rt << std::endl;
     // }
 
-    Crawler2 processor(base_url, 100);
+    Crawler2 processor(base_url, 10);
 
     auto start = std::chrono::steady_clock::now();
-    processor.multi_crawl(start_path, 1, 4);
+    processor.multi_crawl(start_path, 1, 15);
     auto end = std::chrono::steady_clock::now();
     auto rt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Processors: " << 3 << ", Running time : " << rt << std::endl;
+    //std::cout << "Processors: " << 3 << ", Running time : " << rt << std::endl;
         
     Page* root = processor.visited.get_obj(start_path);
 
-    std::cout << root->url << std::endl;
-    std::cout << "found" << std::endl;
 
     std::cout << root->neighbours.size() << std::endl;
     CrawlerUtils::graphing(root);

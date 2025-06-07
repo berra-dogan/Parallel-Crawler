@@ -70,12 +70,13 @@ namespace CrawlerUtils {
                 continue;
             }
             //std::cout << current << std::endl;
-            out << "    \"" << current->url << "\";\n";
+            // remove first 6 characters for /wiki/
+            out << "    \"" << current->url.substr(6) << "\";\n";
             //std::cout << current->url << std::endl;
 
             for (Page* neighbor : current->neighbours) {
                 if (neighbor) {
-                    out << "    \"" << current->url << "\" -> \"" << neighbor->url << "\";\n";
+                    out << "    \"" << current->url.substr(6) << "\" -> \"" << neighbor->url.substr(6) << "\";\n";
                     if (visited.insert(neighbor).second) {
                         q.push(neighbor);
                     }
