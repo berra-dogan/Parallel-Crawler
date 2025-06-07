@@ -5,6 +5,12 @@
 #include <regex>
 #include <fstream>
 #include <unordered_set>
+#include <unordered_map>
+#include <queue>
+#include <string>
+#include <iostream>
+#include "Page.hpp"
+
 
 /**
  * @namespace CrawlerUtils
@@ -54,6 +60,6 @@ namespace CrawlerUtils {
      * 
      * @param graph The graph to be displayed.
      */
-    void graphing(std::unordered_map<std::string, std::unordered_set<std::string>>& graph);
+    void graphing(Page* start_node);
 
 }

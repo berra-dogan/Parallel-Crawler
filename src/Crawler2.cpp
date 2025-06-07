@@ -30,7 +30,10 @@ void Crawler2::link_fetcher() {
                 CURL* easy = curl_easy_init();
                 page->page_content.clear();
 
-                curl_easy_setopt(easy, CURLOPT_URL, page->url.c_str());
+                std::string url_str = base_url + page->url;
+                const char* url = url_str.c_str();
+
+                curl_easy_setopt(easy, CURLOPT_URL, url);
                 curl_easy_setopt(easy, CURLOPT_WRITEFUNCTION, +[](char* ptr, size_t size, size_t nmemb, void* userdata) -> size_t {
                     auto* content = static_cast<std::string*>(userdata);
                     content->append(ptr, size * nmemb);
@@ -109,33 +112,30 @@ void Crawler2::link_fetcher() {
 
 
 void Crawler2::link_processor() {
-    while (num_visited < max_visit) {
+    while (num_visited.load() < max_visit) {
         //std::cout << "hey\n";
         //std::cout << to_process.is_empty() << std::endl;
         Page* page = to_process.pop();
-        std::cout << page << std::endl;
-        std::cout << page->url << std::endl;
-        
+
+        // null pointer, happens to finish thread execution
+        if (!page) {
+            return;
+        }
         //std::cout << "To process: " << to_process.elements.size() << std::endl;
 
+        if (num_visited.fetch_add(1) >= max_visit) {
+            break;
+        }
         // Extract links from the html
-        std::string base_domain = CrawlerUtils::extract_domain(page->url);
-        std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_domain);
+        std::vector<std::string> links = CrawlerUtils::extract_links(page->page_content, base_url);
 
-        num_visited.fetch_add(1);
         
-        std::cout << num_visited <<std::endl;
-
-        //std::cout << page->url << std::endl;
-
         // we don't need to store all the html after having proceessed the link so we remove it 
         // this saves memory and is needed with the amount of pages visited
         page->page_content.clear(); 
 
         for (std::string& link : links) {
-            graph[page->url].insert(link);
-
-            std::string l = base_url + link;
+            std::string l = link;
 
             if (visited.contains(l)) {
                 continue;
@@ -145,16 +145,15 @@ void Crawler2::link_processor() {
             Page* new_page = new Page(l);
             visited.add(new_page);
             to_fetch.push(new_page);
-
+            page->neighbours.insert(new_page);
         }
     }
+
+    // push a null pointer to stop other threads that might be blocked on pop 
+    to_process.push(nullptr);
 }
 
-std::vector<std::string> Crawler2::visit(const std::string& url) {
-    std::string html = http.fetch(url);
-    std::string base_domain = CrawlerUtils::extract_domain(url);
-    return CrawlerUtils::extract_links(html, base_domain);
-}
+
 
 void Crawler2::find_depths(const std::string& start_path) {
     Page* start = visited.get_obj(start_path);
@@ -198,6 +197,11 @@ void Crawler2::multi_crawl(const std::string& start_path, size_t num_threads_fet
 
     for (auto& th : threads_fetch) {
         th.join();
+    }
+
+    // end process threads incase they get stuck on pop
+    for (size_t i = 0; i < num_threads_process; ++i ) {
+        to_process.push(nullptr);
     }
     
     for (auto& th : threads_process) {

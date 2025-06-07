@@ -71,6 +71,9 @@ public:
     /// Adjacency list representing the link graph discovered during crawling.
     std::unordered_map<std::string, std::unordered_set<std::string>> graph;
 
+    /// Thread-safe set of already visited URLs to prevent redundant fetches.
+    RefinableHashSet visited;
+
 protected:
     /// The base/root URL used to resolve relative URLs.
     std::string base_url;
@@ -81,22 +84,13 @@ protected:
     /// Queue of fetched content waiting to be processed (input to the processor).
     SafeUnboundedQueue to_process;
 
-    /// Thread-safe set of already visited URLs to prevent redundant fetches.
-    RefinableHashSet visited;
+
 
     /// HTTP client used for sending GET requests and receiving page content.
     HttpClient http;
 
     /// Number of pages to fetch per batch (used internally).
     const int batch_fetch_size = 20;
-
-    /**
-     * @brief Sends an HTTP GET request to a URL and extracts valid links.
-     * 
-     * @param url The full URL to fetch and parse.
-     * @return A vector of discovered valid links on the page.
-     */
-    std::vector<std::string> visit(const std::string& url);
 
 private:
     /// Maximum number of pages allowed to be visited.

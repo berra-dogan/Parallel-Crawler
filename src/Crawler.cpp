@@ -51,20 +51,28 @@ void Crawler1::multi_crawl(const std::string& start_path, size_t num_threads){
     for (size_t i = 0; i < num_threads; ++i) {
         threads[i] = std::thread(&Crawler1::crawl, this, start_path);
     }
-
+    
     for (auto& th : threads) {
         th.join();
     }
 
+
+
     find_depths(start_path);
 
-    std::cout << "Total visited: " << num_visited << std::endl;
+    //std::cout << "Total visited: " << num_visited << std::endl;
 }
 
 void Crawler1::crawl(const std::string& start_path) {
     while (num_visited.load() < max_visit) {
+        //std::cout << num_visited.load() << std::endl;
+        //std::cout << max_visit <<std::endl;
 
         Page* visited_page = to_visit.pop();
+        if (!visited_page) {
+                // end process threads incase they get stuck on pop
+            break;
+        }
 
         // Atomically increment after popping to avoid going beyond max_visit
         if (num_visited.fetch_add(1) >= max_visit) {
@@ -84,16 +92,11 @@ void Crawler1::crawl(const std::string& start_path) {
                     to_visit.push(neighbour_ptr);
                 } 
                 visited_page->neighbours.insert(neighbour_ptr);
-                auto strip_prefix = [](const std::string& url) -> std::string {
-                    const std::string prefix = "/wiki/";
-                    if (url.rfind(prefix, 0) == 0) { // rfind with pos=0 checks if prefix matches at the start
-                        return url.substr(prefix.size());
-                    }
-                    return url;
-                };
-                graph[strip_prefix(visited_page->url)].insert(strip_prefix(neighbour_ptr->url));
 
             }
         }
     }
+
+    // push a null ptr in order to stop other threads that might be blocked
+    to_visit.push(nullptr);
 }

@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <functional>
 
+#include "Page.hpp"
+
 /**
  * @class RefinableHashSet
  * @brief A thread-safe hash set using fine-grained locking and lock refinement for dynamic resizing.
@@ -42,14 +44,7 @@ public:
      * 
      * @param capacity The initial number of buckets. Defaults to 256.
      */
-    explicit RefinableHashSet(int capacity = 256) {
-        table.resize(capacity);
-        locks.resize(capacity);
-        for (int i = 0; i < capacity; ++i) {
-            locks[i] = std::make_unique<std::mutex>();
-        }
-        owner.store({std::thread::id(), false});
-    }
+    explicit RefinableHashSet(int capacity = 256);
 
     /**
      * @brief Acquires the lock associated with the hash of a string key.
@@ -57,83 +52,25 @@ public:
      *
      * @param x The key whose bucket lock is to be acquired.
      */
-    void acquire(const std::string& x) {
-        OwnerInfo who;
-        std::thread::id me = std::this_thread::get_id();
-        while (true) {
-            do {
-                who = owner.load();
-            } while (who.mark && who.owner_id != me);
-
-            auto* oldLocks = &locks;
-            std::mutex* oldLock = (*oldLocks)[std::hash<std::string>{}(x) % oldLocks->size()].get();
-            oldLock->lock();
-
-            who = owner.load();
-            if ((!who.mark || who.owner_id == me) && oldLocks == &locks) {
-                return;
-            } else {
-                oldLock->unlock();
-            }
-        }
-    }
+    void acquire(const std::string& x);
 
     /**
      * @brief Releases the lock associated with the hash of a string key.
      *
      * @param x The key whose bucket lock is to be released.
      */
-    void release(const std::string& x) {
-        locks[std::hash<std::string>{}(x) % locks.size()]->unlock();
-    }
+    void release(const std::string& x);
 
     /**
      * @brief Resizes the hash table when load factor exceeds a threshold.
      * Uses the lock refinement technique to prevent concurrent modifications.
      */
-    void resize() {
-        int oldCapacity = table.size();
-        OwnerInfo expected = {std::thread::id(), false};
-        std::thread::id me = std::this_thread::get_id();
-        int newCapacity = 2 * oldCapacity;
-        if (owner.compare_exchange_strong(expected, {me, true})) {
-            try {
-                if (int(table.size()) != oldCapacity) return; // Already resized
-
-                quiesce();
-
-                auto oldTable = table;
-                table = std::vector<std::list<Page*>>(newCapacity);
-
-                for (const auto& bucket : oldTable) {
-                    for (const auto& item : bucket) {
-                        table[std::hash<std::string>{}(item->url) % table.size()].push_back(item);
-                    }
-                }
-
-                locks = std::vector<std::unique_ptr<std::mutex>>(newCapacity);
-                for (int j = 0; j < newCapacity; ++j) {
-                    locks[j] = std::make_unique<std::mutex>();
-                }
-
-            } catch (...) {
-                owner.store({std::thread::id(), false});
-                throw;
-            }
-            owner.store({std::thread::id(), false});
-        }
-    }
-
+    void resize();
     /**
      * @brief Ensures all locks are temporarily idle.
      * Used before resizing to safely reallocate buckets.
      */
-    void quiesce() {
-        for (auto& lock : locks) {
-            while (!lock->try_lock()) {}
-            lock->unlock();
-        }
-    }
+    void quiesce();
 
     /**
      * @brief Adds a new Page* to the set.
@@ -141,24 +78,7 @@ public:
      * @param x Pointer to the Page object.
      * @return True if the page was added; false if it already existed.
      */
-    bool add(Page* x) {
-        acquire(x->url);
-        auto& bucket = table[std::hash<std::string>{}(x->url) % table.size()];
-        for (const auto* item : bucket) {
-            if (item->url == x->url) {
-                release(x->url);
-                return false;
-            }
-        }
-        bucket.push_back(x);
-        size.fetch_add(1);
-        release(x->url);
-
-        if (size.load() > 0.75 * table.size()) {
-            resize();
-        }
-        return true;
-    }
+    bool add(Page* x);
 
     /**
      * @brief Removes a Page from the set by its URL.
@@ -166,22 +86,7 @@ public:
      * @param x The URL of the Page to be removed.
      * @return True if the page was found and removed; false otherwise.
      */
-    bool remove(const std::string x) {
-        acquire(x);
-        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
-        auto it = std::find_if(bucket.begin(), bucket.end(), [&](const Page* item) {
-            return item->url == x;
-        });
-
-        if (it != bucket.end()) {
-            bucket.erase(it);
-            size.fetch_sub(1);
-            release(x);
-            return true;
-        }
-        release(x);
-        return false;
-    }
+    bool remove(const std::string x);
 
     /**
      * @brief Checks if a Page with a given URL exists in the set.
@@ -189,18 +94,7 @@ public:
      * @param x The URL to search for.
      * @return True if found; false otherwise.
      */
-    bool contains(const std::string x) {
-        acquire(x);
-        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
-        for (const auto* item : bucket) {
-            if (item->url == x) {
-                release(x);
-                return true;
-            }
-        }
-        release(x);
-        return false;
-    }
+    bool contains(const std::string x);
 
     /**
      * @brief Retrieves a pointer to the Page object with the given URL.
@@ -208,16 +102,5 @@ public:
      * @param x The URL to search for.
      * @return Pointer to the Page if found; nullptr otherwise.
      */
-    Page* get_obj(const std::string x) {
-        acquire(x);
-        auto& bucket = table[std::hash<std::string>{}(x) % table.size()];
-        for (Page* item : bucket) {
-            if (item->url == x) {
-                release(x);
-                return item;
-            }
-        }
-        release(x);
-        return nullptr;
-    }
+    Page* get_obj(const std::string x);
 };

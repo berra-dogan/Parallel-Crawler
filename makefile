@@ -1,7 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
-LDFLAGS = -lcurl
+LDFLAGS = -lcurl -latomic
 
 # Source and build folders
 SRC_DIR = src
@@ -26,6 +26,10 @@ $(BUILD_DIR)/main1: $(MAIN_DIR)/main1.cpp $(COMMON_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BUILD_DIR)/main2: $(MAIN_DIR)/main2.cpp $(COMMON_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(BUILD_DIR)/benchmark: $(MAIN_DIR)/benchmark.cpp $(COMMON_OBJ)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
