@@ -31,6 +31,42 @@ Crawler2 achieves more than **2× the speed** of Crawler1 by dedicating threads 
 
 ---
 
+## How to Run
+
+### Build Instructions
+
+* To compile the entire project:
+
+  ```
+  make
+  ```
+
+* To compile a specific main file:
+
+  ```
+  make build/{main_file_name}
+  ```
+
+### Generating the Graph
+
+`main1` and `main2` generate a `.dot` file (`web_graph.dot`) representing the graph structure.
+
+To visualize this graph:
+
+* Generate a PNG:
+
+  ```
+  sfdp -Goverlap=prism -Gsep=0.5 -Nfontsize=6 -Epenwidth=0.2 -Tpng web_graph.dot -o spaced_graph.png
+  ```
+
+* Generate an SVG:
+
+  ```
+  sfdp -Goverlap=prism -Gsep=0.5 -Nfontsize=6 -Epenwidth=0.2 -Tsvg web_graph.dot -o spaced_graph.svg
+  ```
+
+---
+
 ## Authors
 Berra Dogan
 Remi Guillou

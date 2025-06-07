@@ -57,7 +57,7 @@ namespace CrawlerUtils {
         std::cout << "start" << std::endl;
 
         out << "digraph Web {\n";
-        out << "    node [shape=circle style=filled fillcolor=lightblue fixedsize=true fontname=\"Arial\"];\n";
+        out << "    node [shape=circle style=filled fixedsize=true fontname=\"Arial\"];\n";
 
         std::unordered_set<Page*> visited;
         std::queue<Page*> q;

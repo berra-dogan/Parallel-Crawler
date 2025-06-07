@@ -23,7 +23,7 @@ int main(){
     //     std::cout << "Processors: " << i << ", Running time : " << rt << std::endl;
     // }
 
-    Crawler2 processor(base_url, 10);
+    Crawler2 processor(base_url, 10000);
 
     auto start = std::chrono::steady_clock::now();
     processor.multi_crawl(start_path, 1, 15);

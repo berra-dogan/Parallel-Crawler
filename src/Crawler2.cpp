@@ -7,7 +7,7 @@ Crawler2::Crawler2(const std::string& base_url, size_t max_visit) : base_url(bas
 
 void Crawler2::link_fetcher() {
     CURLM* multi = curl_multi_init();
-    constexpr int MAX_ACTIVE = 256;
+    constexpr int MAX_ACTIVE = 32;
     std::unordered_map<CURL*, Page*> handle_to_page;
     std::set<CURL*> active_handles;
 
