@@ -88,7 +88,7 @@ void ShortestPathGame::find(std::atomic<size_t>& active_threads){
             active_threads.fetch_add(1);  
             continue;
         }  
-        if (visited_page->depth >= best_depth) {
+        if (visited_page->depth >= best_depth || (!all_solutions && visited_page->depth >= best_depth -1)) {
             continue;
         }
 

@@ -30,8 +30,10 @@ public:
      */
     explicit ShortestPathGame(const std::string& base_url,
                               const std::string& start_path,
-                              const std::string& end_path)
-        : Crawler2(base_url, 0), start_path(start_path), end_path(end_path) {
+                              const std::string& end_path,
+                              bool all_solutions = true
+                            )
+        : Crawler2(base_url, 0), start_path(start_path), end_path(end_path), all_solutions(all_solutions) {
         if (start_path == end_path) {
             throw std::invalid_argument("Start and end are the same");
         }
@@ -56,6 +58,7 @@ public:
 private:
     std::string start_path;  ///< Relative path to the start page (e.g., "/wiki/A").
     std::string end_path;    ///< Relative path to the end page (e.g., "/wiki/B").
+    bool all_solutions;      ///whether to find all shortest path solutions or only 1
 
     /**
      * @brief Extracts all valid path solutions from the visited graph.

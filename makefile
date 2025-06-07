@@ -15,7 +15,7 @@ COMMON_SRC = $(wildcard $(SRC_DIR)/*.cpp)
 COMMON_OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(COMMON_SRC))
 
 # Targets
-TARGETS := $(BUILD_DIR)/main1 $(BUILD_DIR)/main2 $(BUILD_DIR)/game $(BUILD_DIR)/benchmark
+TARGETS := $(BUILD_DIR)/main1 $(BUILD_DIR)/main2 $(BUILD_DIR)/game $(BUILD_DIR)/hashset_benchmarking
 
 # Default target: build both
 all: $(TARGETS)
@@ -34,6 +34,10 @@ $(BUILD_DIR)/benchmark: $(MAIN_DIR)/benchmark.cpp $(COMMON_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BUILD_DIR)/game: $(MAIN_DIR)/game.cpp $(COMMON_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(BUILD_DIR)/hashset_benchmarking: $(MAIN_DIR)/hashset_benchmarking.cpp $(COMMON_OBJ)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
